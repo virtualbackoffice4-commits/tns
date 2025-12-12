@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Complain Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="../stylesoff.css">
+  <style>
+    :root{
+      --accent:#2b8cff;--danger:#e74c3c;--bg:#f7f8fb;--surface:#ffffff;--muted:#7f8c8d;
+      --card-shadow:0 6px 18px rgba(23,31,46,0.06);--gap:12px;
+    }
+    html,body{height:100%;margin:0;padding:0;font-family:Inter,system-ui,-apple-system,"Roboto","Helvetica","Arial",sans-serif;background:var(--bg);color:#222;}
+    a{color:inherit;}img{max-width:100%;display:block;}
+    header.app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;background:linear-gradient(180deg,var(--surface),#fbfdff);
+      box-shadow:var(--card-shadow);position:sticky;top:0;z-index:1000;}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .brand h1{margin:0;font-size:1.05rem;font-weight:600;letter-spacing:0.2px;}
+    .hamburger{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:8px;border:none;background:transparent;
+      font-size:20px;cursor:pointer;}
+    .top-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .top-controls button{background:var(--surface);border:1px solid #e6e9ee;padding:8px 12px;border-radius:8px;font-size:0.95rem;
+      cursor:pointer;box-shadow:0 2px 8px rgba(15,23,42,0.04);}
+    .top-controls button:active{transform:translateY(1px);}
+    .top-controls .primary{background:var(--accent);color:#fff;border-color:rgba(43,140,255,0.15);}
+    .drawer{position:fixed;inset:0;pointer-events:none;z-index:1400;}
+    .drawer-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.32);opacity:0;transition:opacity .25s ease;pointer-events:none;}
+    .drawer-panel{position:absolute;left:0;top:0;height:100%;width:320px;max-width:calc(100% - 40px);background:var(--surface);
+      box-shadow:0 20px 40px rgba(10,20,50,0.12);transform:translateX(-110%);transition:transform .36s cubic-bezier(.2,.9,.2,1);
+      padding:16px;box-sizing:border-box;overflow:auto;pointer-events:auto;}
+    .drawer.open .drawer-backdrop{opacity:1;pointer-events:auto;}
+    .drawer.open .drawer-panel{transform:translateX(0);}
+    .filters,.controls{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
+    .filters select,.filters input{padding:10px;border-radius:8px;border:1px solid #e6e9ee;background:#fff;font-size:0.95rem;}
+    .filters-inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0;}
+    .filters-inline select,.filters-inline input{padding:8px 10px;border-radius:8px;border:1px solid #e6e9ee;background:#fff;font-size:0.95rem;}
+    .user-count{font-size:0.95rem;color:var(--muted);padding-left:6px;}
+    #tableWrap{margin:12px;background:transparent;border-radius:8px;overflow:auto;-webkit-overflow-scrolling:touch;}
+    table#dataTable{width:100%;border-collapse:collapse;min-width:980px;background:var(--surface);box-shadow:var(--card-shadow);
+      border-radius:8px;overflow:hidden;}
+    thead th{text-align:left;padding:12px 14px;
+             background: #A4AEEA !important;
+    border-bottom:1px solid #eef2f6;
+      position:sticky;top:0;z-index:2;font-size:0.9rem;color: #000 !important;}
+    tbody td{padding:10px 14px;border-bottom:1px solid #f1f4f8;font-size:0.95rem;vertical-align:middle;}
+    tbody tr.offline td{background:#fffdf6;}
+    tbody tr.ticket td{background:#ff5252 !important;color:white !important;}   /* light red */
+    .mark-btn {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: none;
+  margin-right: 6px;
+  background: #E7E4F6;
+  cursor: pointer;
+}
+    .mark-btn:before {
+  content: "📢";           /* ← Ye pencil emoji aa jayega */
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+    .remove-btn {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: none;
+  margin-right: 6px;
+  background: #FEDCDC !important;
+  cursor: pointer;
+}
+
+.remove-btn:before {
+  content: "🗑️";
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+    #spinnerOverlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1200;
+      background:rgba(255,255,255,0.6);backdrop-filter:blur(2px);flex-direction:column;gap:14px;}
+    #spinnerOverlay .spinner{width:48px;height:48px;border-radius:50%;border:5px solid rgba(0,0,0,0.08);border-top-color:var(--accent);
+      animation:spin 1s linear infinite;}
+    #spinnerOverlay p{margin:0;color:var(--muted);font-size:0.95rem;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #toast{visibility:hidden;min-width:220px;max-width:calc(100% - 40px);background:#333;color:#fff;text-align:center;
+      border-radius:8px;padding:12px 14px;position:fixed;z-index:1300;left:50%;bottom:22px;transform:translateX(-50%) translateY(8px);
+      box-shadow:0 8px 20px rgba(0,0,0,0.12);transition:opacity .25s ease,transform .25s cubic-bezier(.2,.9,.2,1);opacity:0;}
+    #toast.show{visibility:visible;opacity:1;transform:translateX(-50%) translateY(0);}
+    @media (max-width:880px){
+      .top-controls,.filters-inline{display:none;}
+      header.app-header{padding:10px;}
+      .brand h1{font-size:1rem;}
+      .hamburger{width:46px;height:46px;border-radius:10px;}
+      table#dataTable{min-width:820px;}
+      .mark-btn,.remove-btn{width:42px;height:42px;border-radius:8px;}
+    }
+    @media (min-width:881px){
+      .hamburger,.drawer{display:none;}
+      .filters{display:none;}
+      .filters-inline{display:flex;}
+      header.app-header{padding:14px 20px;}
+      #tableWrap{margin:18px 20px;}
+    }
+    button:focus,input:focus,select:focus{outline:3px solid rgba(43,140,255,0.18);outline-offset:2px;}
+    .go-btn-mobile {
+  width: 100%;
+  padding: 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  margin-top: 12px;
+  display: none;
+}
+
+@media (max-width: 880px) {
+  .go-btn-mobile {
+    display: block;
+  }
+}
+
+/* Remark & Team inputs — Same design */
+.remark-input,
+.team-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  border: 1px solid #dcdce8;
+  border-radius: 6px;
+  background: #ffffff;
+  box-sizing: border-box;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.remark-input:focus,
+.team-input:focus {
+  border-color: #2b8cff;
+  box-shadow: 0 0 0 2px rgba(43, 140, 255, 0.2);
+  outline: none;
+}
+
+    
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <button class="hamburger" id="btnHamburger" aria-label="Open menu"><i class="fa fa-bars" aria-hidden="true"></i></button>
+      <h1>Complain Manager</h1>
+    </div>
+    <div class="top-controls" id="topControls">
+      <!-- <button id="btnShowAll">Show All Users</button> -->
+      <button id="btnComplains" class="primary">Complains</button>
+      <button id="btnOffline">Offline</button>
+      <button id="btnDrops">Drops</button>
+      <button id="btnDownloadCsv">CSV</button>
+      <button id="btnScreenshotDownload">Screenshot</button>
+    </div>
+  </header>
+  <div class="drawer" id="appDrawer" aria-hidden="true">
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+    <aside class="drawer-panel" role="dialog" aria-label="Menu">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <strong style="font-size:1rem">Menu</strong>
+        <button id="btnCloseDrawer" aria-label="Close menu" style="border:none;background:transparent;font-size:18px;cursor:pointer">✕</button>
+      </div>
+      <div class="controls">
+       <!-- <button id="m_btnShowAll">Show All Users</button> -->
+        <button id="m_btnComplains">Complains</button>
+        <button id="m_btnOffline">Offline</button>
+        <button id="m_btnDrops">Drops</button>
+        <button id="m_btnDownloadCsv">CSV</button>
+        <button id="m_btnScreenshot">Screenshot</button>
+      </div>
+      <hr style="margin:12px 0;border:none;border-top:1px solid #eef2f6">
+      <div class="filters">
+        <label style="font-weight:600">Window</label>
+        <select id="selWindow_mobile"></select>
+        <label style="font-weight:600">PON</label>
+        <select id="selPon_mobile"></select>
+        <label style="font-weight:600">User ID</label>
+        <input id="searchUser_mobile" placeholder="Enter User ID">
+        <label style="font-weight:600">Mobile No</label>
+        <input id="searchMobile_mobile" placeholder="Enter Mobile No">
+        <label style="font-weight:600">Name</label>
+        <input id="searchName_mobile" placeholder="Enter Name">
+        <label style="font-weight:600">Mac/Serial</label>
+        <input id="searchMac_mobile" placeholder="Enter Mac/Serial">
+        <input id="powerMin_mobile" placeholder="Min Power">
+        <input id="powerMax_mobile" placeholder="Max Power">
+        <button id="m_btnPowerAll">All Users</button>
+        <div class="user-count">User count: <span id="userCount">0</span></div>
+      </div>
+      <button id="drawerGoBtn" class="go-btn-mobile">Go</button>
+    </aside>
+  </div>
+  <div style="padding:12px 20px;">
+    <div class="filters-inline">
+      <select id="selWindow"></select>
+      <select id="selPon"></select>
+      <input id="searchUser" placeholder="Enter User ID">
+      <input id="searchMobile" placeholder="Enter Mobile No">
+      <input id="searchName" placeholder="Enter Name">
+      <input id="searchMac" placeholder="Enter Mac/Serial">
+      <input id="powerMin" placeholder="Min Power">
+      <input id="powerMax" placeholder="Max Power">
+      <button id="btnPowerAll">All Users</button>
+      <div class="user-count">User count: <span id="userCount_desktop">0</span></div>
+    </div>
+  </div>
+  <div id="tableWrap">
+    <table id="dataTable" aria-describedby="userCount">
+      <thead>
+        <tr>
+          <th class="sortable" data-key="NMID">PON</th>
+          <th class="sortable" data-key="Users">User ID</th>
+          <th>Mobile No</th>
+          <th>Name</th>
+          <th>Mac / Serial</th>
+          <th class="sortable" data-key="Drops">Down</th>
+          <th>Remark</th>
+          <th>Team</th>
+          <th class="sortable" data-key="Power">Power</th>
+          <th>Complain</th>
+          <th>Location</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <div id="spinnerOverlay"><div class="spinner"></div><p>Loading...</p></div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <script>
+const GAS_URLS = {
+  main:{ 
+    url: "https://script.google.com/macros/s/AKfycbxSdkFZWDzGAfI9mxW4p4EMtE2OXCVAEtazSVan58EFGymjfkHoKY2sIMBQcrCogWJVtg/exec",
+    sheetId: "1eTlHyMvhU1uT6D0P3a4XaQuGtBll2-rEMcJnyGzhaHI"
+  }
+};
+    const TOKEN="abcd1234";
+    let rawRows=[],baseFiltered=[],filtered=[],currentSort={key:null,asc:true},currentMode='offline';
+    const spinner=document.getElementById('spinnerOverlay'),tbody=document.querySelector('#dataTable tbody'),
+          selWindow=document.getElementById('selWindow'),selPon=document.getElementById('selPon'),
+          selWindow_mobile=document.getElementById('selWindow_mobile'),selPon_mobile=document.getElementById('selPon_mobile');
+    function showSpinner(){spinner.style.display='flex';document.body.classList.add('disabled');}
+    function hideSpinner(){spinner.style.display='none';document.body.classList.remove('disabled');}
+    function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),3000);}
+    function jsonpGet(url,timeout=10000){return new Promise((res,rej)=>{const cb='__jsonp_'+Date.now();
+      window[cb]=d=>{clearTimeout(t);cleanup();res(d);};
+      const s=document.createElement('script');s.src=url+(url.includes('?')?'&':'?')+`callback=${cb}&_=${Date.now()}`;
+      const t=setTimeout(()=>{cleanup();rej(new Error('timeout'));},timeout);
+      function cleanup(){delete window[cb];s.remove();}
+      s.onerror=()=>{cleanup();rej(new Error('script error'));}
+      document.head.appendChild(s);});}
+    function postToGAS(obj){
+      const gasUrl = GAS_URLS.main.url;
+      const url=`${gasUrl}?token=${encodeURIComponent(TOKEN)}`;
+      showSpinner();
+      return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)})
+        .then(r=>r.ok?r.json():Promise.reject(`HTTP ${r.status}`))
+        .then(d=>d.success?d:Promise.reject(d.error||'fail'))
+        .catch(()=>fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify(obj)}).then(()=>({success:true,fallback:true})))
+        .finally(hideSpinner);
+    }
+    async function fetchData(){
+      showSpinner();
+      try{
+const d = await jsonpGet(`${GAS_URLS.main.url}?token=${TOKEN}`);
+rawRows = (d.rows || []).map(row => ({ ...row, source:"main" }));
+        updateBaseFiltered();
+      }catch(e){showToast('Load failed: '+e.message);}finally{hideSpinner();}
+    }
+    function updateBaseFiltered(){
+      switch(currentMode){
+        case'offline':baseFiltered=rawRows.filter(r=>(r.Downs||r.T||'').toString().trim());break;
+        case'complains':baseFiltered=rawRows.filter(r=>(r.Ticket||r.X||'').toString().trim());break;
+        case'drops':baseFiltered=rawRows.filter(r=>(r.Drops||r.AB||'').toString().trim());break;
+        case 'all':baseFiltered = rawRows.slice();break;
+        default:baseFiltered=rawRows;
+      }
+      populateWindowPon();applyAllFilters();
+    }
+    function populateWindowPon(){
+      const windows=new Set(),ponsForWindow={};
+      baseFiltered.forEach(r=>{
+        const w=r.Window||r.window||r.A||'',p=r.NMID||r.C||'';
+        windows.add(w);if(!ponsForWindow[w])ponsForWindow[w]=new Set();if(p)ponsForWindow[w].add(p);
+      });
+      const html='<option value="">All Window</option>'+Array.from(windows).filter(Boolean).sort().map(w=>`<option value="${w}">${w}</option>`).join('');
+      selWindow.innerHTML=selWindow_mobile.innerHTML=html;
+      selWindow._ponsMap=selWindow_mobile._ponsMap=ponsForWindow;
+      fillPonOptions('');
+    }
+    function fillPonOptions(win){
+      const map=selWindow._ponsMap||{};
+      const set=win?map[win]||new Set():new Set(Object.values(map).flatMap(s=>[...s]));
+      const opts=Array.from(set).sort().map(p=>`<option value="${p}">${p}</option>`).join('');
+      selPon.innerHTML=selPon_mobile.innerHTML='<option value="">Select PON</option>'+opts;
+      applyAllFilters();
+    }
+ function applyAllFilters() {
+    let data = baseFiltered.slice();
+
+    const win = selWindow.value || selWindow_mobile.value;
+    const pon = selPon.value || selPon_mobile.value;
+
+    // -------------------------------------
+    // 🔍 SEARCH FILTERS
+    // -------------------------------------
+    const searches = ['searchUser', 'searchMobile', 'searchName', 'searchMac'].map(id =>
+        (document.getElementById(id).value || document.getElementById(id + '_mobile').value || '')
+            .trim()
+            .toLowerCase()
+    );
+
+    if (searches.some(s => s.length >= 3)) {
+        data = rawRows.filter(r => {
+            if (searches[0].length >= 3 && !(r.Users || r.N || '').toString().toLowerCase().includes(searches[0])) return false;
+            if (searches[1].length >= 3 && ![(r['Last called no'] || r.AC || ''), (r.Number || r.P || '')]
+                .some(v => v.toString().toLowerCase().includes(searches[1]))) return false;
+            if (searches[2].length >= 3 && !(r.Name || r.O || '').toString().toLowerCase().includes(searches[2])) return false;
+            if (searches[3].length >= 3 && ![(r.MAC || r.U || ''), (r.Serial || r.V || '')]
+                .some(v => v.toString().toLowerCase().includes(searches[3]))) return false;
+            return true;
+        });
+    }
+
+    // -------------------------------------
+    // 🔋 POWER FILTERS
+    // -------------------------------------
+    const pMin = parseFloat(document.getElementById('powerMin').value || document.getElementById('powerMin_mobile').value || '');
+    const pMax = parseFloat(document.getElementById('powerMax').value || document.getElementById('powerMax_mobile').value || '');
+
+    if (!isNaN(pMin)) data = data.filter(r => Number(r.Power || r.S || 0) >= pMin);
+    if (!isNaN(pMax)) data = data.filter(r => Number(r.Power || r.S || 0) <= pMax);
+
+    // -------------------------------------
+    // ⭐ ALL MODE → Window/PON ko ignore karo
+    //    (search + power filters allowed)
+    // -------------------------------------
+    if (currentMode === "all") {
+        filtered = data;
+        return renderTable();
+    }
+
+    // -------------------------------------
+    // 🪟 WINDOW FILTER
+    // -------------------------------------
+    if (win) {
+        data = data.filter(r => (r.Window || r.window || r.A || '').toString() === win);
+    }
+
+    // -------------------------------------
+    // 🔌 PON FILTER
+    // -------------------------------------
+    if (pon) {
+        data = data.filter(r => (r.NMID || r.C || '').toString() === pon);
+    }
+
+    // DONE ✔
+    filtered = data;
+    renderTable();
+}
+
+    function renderTable(){
+      const rows=filtered.slice();
+      if(currentSort.key) rows.sort((a,b)=>{
+        const ka=(a[currentSort.key]||a[keyOrAlt(a,currentSort.key)]||'').toString();
+        const kb=(b[currentSort.key]||b[keyOrAlt(b,currentSort.key)]||'').toString();
+        return (ka<kb?-1:ka>kb?1:0)*(currentSort.asc?1:-1);
+      });
+      document.getElementById('userCount').textContent=document.getElementById('userCount_desktop').textContent=rows.length;
+      tbody.innerHTML='';
+      rows.forEach(r=>{
+        const tr=document.createElement('tr');
+        const isOffline=(r.Downs||r.T||'').toString().trim()!=='';
+        const isTicket=(r.Ticket||r.X||'').toString().trim()!=='';
+        if(isOffline) tr.classList.add('offline');
+        if(isTicket) tr.classList.add('ticket');
+        const uid=r.Users||r.N||'',pon=r.NMID||r.C||'',
+              mobile=(r['Last called no']||r.AC||'')||(r.Number||r.P||'')||'',
+              name=r.Name||r.O||'',mac=r.MAC||r.U||'',serial=r.Serial||r.V||'',
+              drops=r.Drops||r.AB||'',remark=r.Remarks||r.Y||r.remark||r.Remark||'',
+              location=r.Location||r.Q||'',procare=r['User status']||r.AF||'';
+              const team = r.Team || r.AD || r.team || "";
+       
+        tr.innerHTML = `
+<td>${pon}</td>
+<td>${uid}</td>
+<td>${mobile}</td>
+<td>${name}</td>
+
+<td>${mac}<br><small>${serial}</small></td>
+
+<td>${drops ? formatTimestamp(drops) : ''}</td>
+
+<td>
+  <input class="remark-input" data-uid="${uid}" data-source="${r.source}" value="${remark}">
+</td>
+
+<td>
+  <input class="team-input" data-uid="${uid}" data-source="${r.source}" value="${team}">
+</td>
+
+<td>${(Number(r.Power || r.S || 0)).toFixed(2)}</td> <!-- ⭐ POWER COLUMN -->
+
+<td>
+  <button class="mark-btn" data-uid="${uid}" data-source="${r.source}"></button>
+  <button class="remove-btn" data-uid="${uid}" data-source="${r.source}"></button>
+</td>
+
+<td>${location}</td>
+<td>${procare}</td>
+`;
+
+        tbody.appendChild(tr);
+      });
+      tbody.querySelectorAll('.mark-btn').forEach(b=>b.onclick=onMarkClick);
+      tbody.querySelectorAll('.remove-btn').forEach(b=>b.onclick=onRemoveClick);
+      tbody.querySelectorAll('.remark-input').forEach(i=>i.onchange=onRemarkChange);
+      tbody.querySelectorAll('.team-input').forEach(i => i.onchange = onTeamChange);
+    }
+    function keyOrAlt(o,k){const m={'NMID':'C','Users':'N','Drops':'AB'};return m[k]||k;}
+function onMarkClick(e){
+  const btn = e.currentTarget,
+        uid = btn.dataset.uid,
+        src = btn.dataset.source;
+
+  const remark = document.querySelector(`.remark-input[data-uid="${uid}"][data-source="${src}"]`).value;
+  const team   = document.querySelector(`.team-input[data-uid="${uid}"][data-source="${src}"]`).value;
+
+  postToGAS({
+      id: uid,
+      action: 'mark',
+      remark: remark,
+      team: team,
+      timestamp: formatTimestamp(new Date())
+  }).then(r=>{
+    if(r.success){
+      showToast('Marked!');
+      btn.closest('tr').remove();
+      fetchData();
+    } else {
+      showToast('Mark failed');
+    }
+  });
+}
+
+    function onRemoveClick(e){
+  const btn=e.currentTarget,
+        uid=btn.dataset.uid;
+
+  postToGAS({id:uid,action:'remove'}).then(r=>{
+    if(r.success){
+      showToast('Removed!');
+      btn.closest('tr').remove();
+      fetchData();
+    } else {
+      showToast('Remove failed');
+    }
+  });
+}
+    function onRemarkChange(e){/* saved on mark */}
+    function onTeamChange(e){/* saved on mark button */}
+    function formatTimestamp(i){
+      if(!i) return '';
+      const m=/^(\d+)-(\w+)\s*\[(\d+):(\d+)\]/.exec(i);
+      if(m){
+        const mo={'jan':'01','feb':'02','mar':'03','apr':'04','may':'05','jun':'06','jul':'07','aug':'08','sep':'09','oct':'10','nov':'11','dec':'12'};
+        const d=new Date(`${mo[m[2].toLowerCase()]}/${m[1]}/${new Date().getFullYear()} ${m[3].padStart(2,'0')}:${m[4].padStart(2,'0')}:00`);
+        return isNaN(d)?'':`${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+      }
+      const d=new Date(i);return isNaN(d.getTime())?'':`${d.getMonth()+1}/${d.getDate()}/${d.getFullYear()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+    }
+document.addEventListener('click', e => {
+
+    /* 🌟 DESKTOP — POWER RANGE ON ALL USERS */
+    if (e.target.closest('#btnPowerAll')) {
+currentMode = "all";
+        // ⭐ Reset Window + PON (Desktop + Mobile)
+        selWindow.value = "";
+        selPon.value = "";
+        selWindow_mobile.value = "";
+        selPon_mobile.value = "";
+
+        const min = parseFloat(document.getElementById('powerMin').value);
+        const max = parseFloat(document.getElementById('powerMax').value);
+
+        let data = rawRows.slice(); // Full data
+
+        if (!isNaN(min)) data = data.filter(r => Number(r.Power || r.S || 0) >= min);
+        if (!isNaN(max)) data = data.filter(r => Number(r.Power || r.S || 0) <= max);
+
+        filtered = data;
+        renderTable();
+        showToast("Power range applied on ALL USERS!");
+    }
+
+    /* 🌟 MOBILE — POWER RANGE ON ALL USERS */
+    if (e.target.closest('#m_btnPowerAll')) {
+  currentMode = "all"
+        // ⭐ Reset Window + PON (Desktop + Mobile)
+        selWindow.value = "";
+        selPon.value = "";
+        selWindow_mobile.value = "";
+        selPon_mobile.value = "";
+
+        const min = parseFloat(document.getElementById('powerMin_mobile').value);
+        const max = parseFloat(document.getElementById('powerMax_mobile').value);
+
+        let data = rawRows.slice(); // Full data
+
+        if (!isNaN(min)) data = data.filter(r => Number(r.Power || r.S || 0) >= min);
+        if (!isNaN(max)) data = data.filter(r => Number(r.Power || r.S || 0) <= max);
+
+        filtered = data;
+        renderTable();
+        showToast("Power range applied on ALL USERS!");
+    }
+
+    /* CSV DOWNLOAD */
+    if (e.target.closest('#btnDownloadCsv, #m_btnDownloadCsv')) {
+        downloadCSV();
+    }
+
+    /* SCREENSHOT */
+    if (e.target.closest('#btnScreenshotDownload, #m_btnScreenshot')) {
+        triggerScreenshotDownload();
+    }
+
+    /* MODES */
+    if (e.target.closest('#btnComplains, #m_btnComplains')) {
+        currentMode = 'complains';
+        updateBaseFiltered();
+    }
+    if (e.target.closest('#btnOffline, #m_btnOffline')) {
+        currentMode = 'offline';
+        updateBaseFiltered();
+    }
+    if (e.target.closest('#btnDrops, #m_btnDrops')) {
+        currentMode = 'drops';
+        updateBaseFiltered();
+    }
+
+    /* SORTING */
+    if (e.target.matches('th.sortable')) {
+        const k = e.target.dataset.key;
+        if (currentSort.key === k) currentSort.asc = !currentSort.asc;
+        else { currentSort.key = k; currentSort.asc = true; }
+        renderTable();
+    }
+
+    /* SHOW ALL USERS BUTTON */
+    if (e.target.closest('#btnShowAll, #m_btnShowAll')) {
+
+        currentMode = 'all';
+
+        // RESET ALL FILTERS
+        selWindow.value = "";
+        selPon.value = "";
+        selWindow_mobile.value = "";
+        selPon_mobile.value = "";
+
+        document.getElementById("searchUser").value = "";
+        document.getElementById("searchMobile").value = "";
+        document.getElementById("searchName").value = "";
+        document.getElementById("searchMac").value = "";
+
+        document.getElementById("searchUser_mobile").value = "";
+        document.getElementById("searchMobile_mobile").value = "";
+        document.getElementById("searchName_mobile").value = "";
+        document.getElementById("searchMac_mobile").value = "";
+
+        document.getElementById("powerMin").value = "";
+        document.getElementById("powerMax").value = "";
+        document.getElementById("powerMin_mobile").value = "";
+        document.getElementById("powerMax_mobile").value = "";
+
+        updateBaseFiltered();
+    }
+
+});
+
+
+function downloadCSV(){
+  const rows=[['PON','UserID','Mobile','Name','Mac','Serial','Down time','Remark','Team','Power','Location','Procare']];
+  
+  document.querySelectorAll('#dataTable tbody tr').forEach(tr=>{
+    const tds = tr.cells;
+
+    rows.push([
+      tds[0].innerText,                              // PON
+      tds[1].innerText,                              // UserID
+      tds[2].innerText,                              // Mobile
+      tds[3].innerText,                              // Name
+      tds[4].childNodes[0].nodeValue.trim(),         // Mac
+      tds[4].querySelector('small')?.innerText || '',// Serial
+      tds[5].innerText,                              // Down time
+      tds[6].querySelector('input').value,           // Remark
+      tds[7].querySelector('input').value, // Team
+    tds[8].innerText,                    // ⭐ Power
+    tds[10].innerText,                   // Location
+    tds[11].innerText                    // Procare
+    ].map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(','));
+  });
+
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'complains.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+    async function triggerScreenshotDownload(){
+      showSpinner();
+      await new Promise(r=>setTimeout(r,100));
+      const table=document.getElementById('dataTable');
+      const orig=table.parentElement.style.overflow;table.parentElement.style.overflow='visible';
+      const canvas=await html2canvas(table,{scale:window.devicePixelRatio,useCORS:true,backgroundColor:null,windowWidth:table.scrollWidth});
+      table.parentElement.style.overflow=orig;
+      const a=document.createElement('a');a.href=canvas.toDataURL('image/png');a.download='screenshot.png';a.click();
+      hideSpinner();showToast('Screenshot saved');
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      fetchData();
+      const drawer=document.getElementById('appDrawer');
+      document.getElementById('btnHamburger').onclick=()=>drawer.classList.add('open');
+      document.getElementById('btnCloseDrawer').onclick=document.getElementById('drawerBackdrop').onclick=()=>drawer.classList.remove('open');
+      selWindow.onchange=()=>{fillPonOptions(selWindow.value);selWindow_mobile.value=selWindow.value;}
+      selPon.onchange=applyAllFilters;
+      selWindow_mobile.onchange=()=>{selWindow.value=selWindow_mobile.value;fillPonOptions(selWindow.value);}
+      selPon_mobile.onchange=()=>{selPon.value=selPon_mobile.value;applyAllFilters();}
+      ['searchUser','searchMobile','searchName','searchMac'].forEach(id=>{
+        const desk = document.getElementById(id);
+        const mob = document.getElementById(id + '_mobile');
+        desk.oninput = () => {
+          mob.value = desk.value;
+          applyAllFilters();
+        };
+        mob.oninput = () => {
+          desk.value = mob.value;
+          applyAllFilters();
+        };
+      });
+
+     // ⚡ Power filters live update
+['powerMin','powerMax'].forEach(id=>{
+    const desk = document.getElementById(id);
+    const mob  = document.getElementById(id + '_mobile');
+
+    desk.oninput = () => {
+        mob.value = desk.value;
+        applyAllFilters();
+    };
+
+    mob.oninput = () => {
+        desk.value = mob.value;
+        applyAllFilters();
+    };
+});
+ 
+      window.onresize=()=>window.innerWidth>880&&drawer.classList.remove('open');
+            // ⭐ Close drawer after clicking any mobile menu button
+      [
+        "m_btnComplains",
+        "m_btnOffline",
+        "m_btnDrops",
+        "m_btnDownloadCsv",
+        "m_btnScreenshot"
+      ].forEach(id => {
+          const btn = document.getElementById(id);
+          if (btn) {
+              btn.addEventListener("click", () => {
+                  drawer.classList.remove("open");
+              });
+          }
+      });
+
+      // ⭐ Go button → close drawer
+      const goBtn = document.getElementById("drawerGoBtn");
+      if (goBtn) {
+          goBtn.addEventListener("click", () => {
+              drawer.classList.remove("open");
+          });
+      }
+    });
+  </script>
+</body>
+</html>
