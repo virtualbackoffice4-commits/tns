@@ -293,18 +293,12 @@ h2 {
 }
 
 }
-/* ===== Hide PON 5,6,7,8 columns ===== */
+/* ===== Hide PON 5,6,7,8 columns (robust way) ===== */
 
-/* Header */
-#matrixTable th:nth-child(7),
-#matrixTable th:nth-child(8),
-#matrixTable th:nth-child(9),
-#matrixTable th:nth-child(10),
-
-/* All rows data cells */
-#matrixTable td:nth-child(7),
-#matrixTable td:nth-child(8),
-#matrixTable td:nth-child(9),
-#matrixTable td:nth-child(10) {
-  display: none;
+/* Har row me 7th–10th column hide */
+#matrixTable tr > *:nth-child(7),
+#matrixTable tr > *:nth-child(8),
+#matrixTable tr > *:nth-child(9),
+#matrixTable tr > *:nth-child(10) {
+  display: none !important;
 }
