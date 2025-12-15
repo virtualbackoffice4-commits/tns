@@ -31,7 +31,7 @@
   <th colspan="11">TSN Window</th>
 </tr>
 
-<!-- O1I2 -->
+<!-- ================= O1I2 ================= -->
 <tr>
   <th rowspan="4" class="olt-name">O1I2</th>
   <th>Users</th>
@@ -82,7 +82,7 @@
   <td></td>
 </tr>
 
-<!-- O2I3 -->
+<!-- ================= O2I3 ================= -->
 <tr>
   <th rowspan="4" class="olt-name">O2I3</th>
   <th>Users</th>
@@ -136,13 +136,13 @@
 </table>
 </div>
 
-<!-- MODAL + TOAST (unchanged) -->
+<!-- ================= MODAL ================= -->
 <div id="userModal">
   <div id="userModalContent">
     <span class="closeBtn" onclick="closeModal()">&times;</span>
     <div id="modalButtons"></div>
     <div id="screenshotContent">
-      <h3 id="modalTitle"></h3>
+      <h3 id="modalTitle">Users Details</h3>
       <div id="modalSubTitle"></div>
       <div id="userDetails"></div>
     </div>
@@ -155,7 +155,6 @@
 const WEB_APP_URLS = [
   'https://script.google.com/macros/s/AKfycbwS-PswDc7EbyqRWn-vxfZymz6CGeUiZOByY5Dgq0HruWRGxamZXd-_CgdHnmR3vYKsFg/exec'
 ];
-
 const TOKEN = 'abcd1234';
 const STATUS_LINK = 'https://vbo.co.in/ISP/Lucknow/Merotra/tag';
 
@@ -171,16 +170,15 @@ async function loadData() {
 
   oltData = {};
 
-  olts.forEach(o => {
+  for (let o of olts) {
     for (let i = 1; i <= o.pons; i++) {
       oltData[o.id + 'P' + i] = { all: [], off: [], tick: [], drops: [] };
     }
-  });
+  }
 
   try {
     const res = await fetch(WEB_APP_URLS[0] + '?token=' + TOKEN);
     const data = await res.json();
-
     dashboardA7 = data.dashboardA7 ?? null;
     const rows = data.rows || [];
 
@@ -191,7 +189,8 @@ async function loadData() {
         const nmid = o.id + 'P' + i;
 
         const filtered = rows.filter(r =>
-          (r.NMID || '').toUpperCase() === nmid
+          (r.NMID || '').trim().toUpperCase() === nmid
+          && (r.Users || r.Users === 0)
         );
 
         const off = filtered.filter(r => r.Downs);
@@ -205,9 +204,10 @@ async function loadData() {
         document.getElementById(`tick${i}-${o.id}`).textContent = tick.length || '';
 
         const stat = document.getElementById(`stat${i}-${o.id}`);
-        const isOn = dashboardA7 !== null ? drops.length < dashboardA7 : true;
-        stat.innerHTML = `<a href="${STATUS_LINK}">${isOn ? '🟢' : '🔴'}</a>`;
-
+        if (dashboardA7 !== null) {
+          const isOn = drops.length < dashboardA7;
+          stat.innerHTML = `<a href="${STATUS_LINK}" target="_self">${isOn ? '🟢' : '🔴'}</a>`;
+        }
         total += filtered.length;
         offTotal += off.length;
         tickTotal += tick.length;
@@ -227,5 +227,103 @@ async function loadData() {
   }
 }
 
-/* ---- POPUP, CSV, SHARE, TOAST ---- */
-/* SAME AS ORIGINAL – unchanged logic */
+/* ========= ORIGINAL POPUP / CSV / SHARE / EVENTS ========= */
+/* (UNCHANGED LOGIC – DIRECT COPY FROM ORIGINAL) */
+
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.className = 'show';
+  setTimeout(() => toast.className = '', 3000);
+}
+
+function attachEventListeners() {
+  const olts = [
+    { id: 'O1I2', pons: 8 },
+    { id: 'O2I3', pons: 8 }
+  ];
+
+  for (let o of olts) {
+    for (let i = 1; i <= o.pons; i++) {
+
+      const pon = document.getElementById(`pon${i}-${o.id}`);
+      const off = document.getElementById(`off${i}-${o.id}`);
+      const tick = document.getElementById(`tick${i}-${o.id}`);
+
+      if (pon) pon.onclick = () =>
+        pon.textContent === '' ? showToast() : showUsers('all', o.id+'P'+i, o.id, 'P'+i);
+
+      if (off) off.onclick = () =>
+        off.textContent === '' ? showToast() : showUsers('off', o.id+'P'+i, o.id, 'P'+i);
+
+      if (tick) tick.onclick = () =>
+        tick.textContent === '' ? showToast() : showUsers('tick', o.id+'P'+i, o.id, 'P'+i);
+    }
+
+    document.getElementById(`oltTotal-${o.id}`).onclick =
+      () => showOltUsers('all', o.id, o.pons);
+
+    document.getElementById(`oltOffTotal-${o.id}`).onclick =
+      () => showOltUsers('off', o.id, o.pons);
+
+    document.getElementById(`oltTickTotal-${o.id}`).onclick =
+      () => showOltUsers('tick', o.id, o.pons);
+  }
+}
+
+/* ---- showUsers, showOltUsers, closeModal ---- */
+/* SAME AS ORIGINAL – NO CHANGE */
+
+function showUsers(type, nmid, olt, pon) {
+  let title = "Users Details";
+  if (type === "off") title = "Offline Users Details";
+  if (type === "tick") title = "Ticket Users Details";
+
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalSubTitle').textContent = `OLT: ${olt} PON: ${pon}`;
+
+  const users = oltData[nmid][type];
+  if (users.length === 0) return showToast();
+
+  let html = '<table><tr><th>Sn</th><th>Name</th><th>Number</th><th>Location</th><th>Address</th><th>Power</th><th>Remarks</th></tr>';
+
+  users.forEach((r,i)=>{
+    const num = r['Last called no']?.trim() || r.Number || '';
+    html += `<tr><td>${i+1}</td><td>${r.Name||''}</td><td>${num}</td><td>${r.Location||''}</td><td>${r.Address||''}</td><td>${r.Power||''}</td><td>${r.Remarks||''}</td></tr>`;
+  });
+
+  html += '</table>';
+  document.getElementById('userDetails').innerHTML = html;
+  document.getElementById('userModal').style.display = 'flex';
+}
+
+function showOltUsers(type, olt, maxPon) {
+  let users = [];
+  for (let i=1;i<=maxPon;i++) users.push(...oltData[olt+'P'+i][type]);
+  if (users.length===0) return showToast();
+
+  document.getElementById('modalTitle').textContent = "All Users Details";
+  document.getElementById('modalSubTitle').textContent = `OLT: ${olt}`;
+
+  let html = '<table><tr><th>Sn</th><th>Name</th><th>Number</th><th>Location</th><th>Address</th><th>Power</th><th>Remarks</th></tr>';
+  users.forEach((r,i)=>{
+    const num = r['Last called no']?.trim() || r.Number || '';
+    html += `<tr><td>${i+1}</td><td>${r.Name||''}</td><td>${num}</td><td>${r.Location||''}</td><td>${r.Address||''}</td><td>${r.Power||''}</td><td>${r.Remarks||''}</td></tr>`;
+  });
+  html+='</table>';
+
+  document.getElementById('userDetails').innerHTML = html;
+  document.getElementById('userModal').style.display = 'flex';
+}
+
+function closeModal(){
+  document.getElementById('userModal').style.display='none';
+}
+
+window.addEventListener('load',()=>{
+  loadData();
+  setInterval(loadData,30000);
+});
+</script>
+
+</body>
+</html>
