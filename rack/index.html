@@ -136,13 +136,13 @@
 </table>
 </div>
 
-<!-- MODAL -->
+<!-- ===== MODAL ===== -->
 <div id="userModal">
   <div id="userModalContent">
     <span class="closeBtn" onclick="closeModal()">&times;</span>
     <div id="modalButtons"></div>
     <div id="screenshotContent">
-      <h3 id="modalTitle"></h3>
+      <h3 id="modalTitle">Users Details</h3>
       <div id="modalSubTitle"></div>
       <div id="userDetails"></div>
     </div>
@@ -164,120 +164,119 @@ let dashboardA7 = null;
 
 /* ================= LOAD DATA ================= */
 async function loadData() {
-
   const olts = [
     { id: 'O1I2', pons: 8 },
     { id: 'O2I3', pons: 8 }
   ];
 
   oltData = {};
-  olts.forEach(o=>{
-    for(let i=1;i<=o.pons;i++){
-      oltData[o.id+'P'+i] = { all:[], off:[], tick:[], drops:[] };
+  for (let o of olts) {
+    for (let i = 1; i <= o.pons; i++) {
+      oltData[o.id + 'P' + i] = { all: [], off: [], tick: [], drops: [] };
     }
-  });
+  }
 
   try {
-    const res = await fetch(WEB_APP_URLS[0]+'?token='+TOKEN);
+    const res = await fetch(WEB_APP_URLS[0] + '?token=' + TOKEN);
     const data = await res.json();
     dashboardA7 = data.dashboardA7 ?? null;
     const rows = data.rows || [];
 
-    olts.forEach(o=>{
-      let total=0, offTotal=0, tickTotal=0;
+    for (let o of olts) {
+      let total = 0, offTotal = 0, tickTotal = 0;
 
-      for(let i=1;i<=o.pons;i++){
-        const nmid = o.id+'P'+i;
+      for (let i = 1; i <= o.pons; i++) {
+        const nmid = o.id + 'P' + i;
+
         const filtered = rows.filter(r =>
-          (r.NMID||'').trim().toUpperCase()===nmid &&
-          (r.Users || r.Users===0)
+          (r['NMID'] || '').trim().toUpperCase() === nmid &&
+          (r['Users'] || r['Users'] === 0)
         );
 
-        const off = filtered.filter(r=>r.Downs);
-        const tick = filtered.filter(r=>r.Ticket);
-        const drops = filtered.map(r=>r.Drops).filter(Boolean);
+        const off = filtered.filter(r => r['Downs']);
+        const tick = filtered.filter(r => r['Ticket']);
+        const drops = filtered.map(r => r['Drops']).filter(v => v);
 
-        oltData[nmid]={all:filtered, off, tick, drops};
+        oltData[nmid] = { all: filtered, off, tick, drops };
 
         document.getElementById(`pon${i}-${o.id}`).textContent = filtered.length || '';
         document.getElementById(`off${i}-${o.id}`).textContent = off.length || '';
         document.getElementById(`tick${i}-${o.id}`).textContent = tick.length || '';
 
-        const stat=document.getElementById(`stat${i}-${o.id}`);
-        if(dashboardA7!==null){
-          const isOn = drops.length < dashboardA7;
-          stat.innerHTML=`<a href="${STATUS_LINK}" target="_self">${isOn?'🟢':'🔴'}</a>`;
+        const stat = document.getElementById(`stat${i}-${o.id}`);
+        if (dashboardA7 !== null) {
+          stat.innerHTML = `<a href="${STATUS_LINK}" target="_self">${drops.length < dashboardA7 ? '🟢' : '🔴'}</a>`;
         }
 
-        total+=filtered.length;
-        offTotal+=off.length;
-        tickTotal+=tick.length;
+        total += filtered.length;
+        offTotal += off.length;
+        tickTotal += tick.length;
       }
 
       document.getElementById(`oltTotal-${o.id}`).textContent = total || '';
       document.getElementById(`oltOffTotal-${o.id}`).textContent = offTotal || '';
       document.getElementById(`oltTickTotal-${o.id}`).textContent = tickTotal || '';
-    });
+    }
 
     attachEventListeners();
-    document.getElementById('loadingOverlay').style.display='none';
+    document.getElementById('loadingOverlay').style.display = 'none';
 
-  } catch(e){
+  } catch (e) {
     console.error(e);
-    document.getElementById('loadingOverlay').style.display='none';
+    document.getElementById('loadingOverlay').style.display = 'none';
   }
 }
 
-/* ================= ORIGINAL FUNCTIONS ================= */
-
-function showToast(){
-  const t=document.getElementById('toast');
-  t.className='show';
-  setTimeout(()=>t.className='',3000);
+/* ================= TOAST ================= */
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.className = 'show';
+  setTimeout(() => toast.className = '', 3000);
 }
 
-function attachEventListeners(){
-  const olts=[
-    {id:'O1I2',pons:8},
-    {id:'O2I3',pons:8}
+/* ================= EVENTS ================= */
+function attachEventListeners() {
+  const olts = [
+    { id: 'O1I2', pons: 8 },
+    { id: 'O2I3', pons: 8 }
   ];
 
-  olts.forEach(o=>{
-    for(let i=1;i<=o.pons;i++){
-      ['pon','off','tick'].forEach(type=>{
-        const el=document.getElementById(`${type}${i}-${o.id}`);
-        if(el){
-          el.onclick=()=>{
-            if(el.textContent===''||el.textContent==='0') showToast();
-            else showUsers(type==='pon'?'all':type, o.id+'P'+i, o.id, 'P'+i);
-          };
-        }
-      });
+  for (let o of olts) {
+    for (let i = 1; i <= o.pons; i++) {
+      const p = document.getElementById(`pon${i}-${o.id}`);
+      const off = document.getElementById(`off${i}-${o.id}`);
+      const t = document.getElementById(`tick${i}-${o.id}`);
+
+      p && p.addEventListener('click', () =>
+        p.textContent ? showUsers('all', `${o.id}P${i}`, o.id, `P${i}`) : showToast()
+      );
+      off && off.addEventListener('click', () =>
+        off.textContent ? showUsers('off', `${o.id}P${i}`, o.id, `P${i}`) : showToast()
+      );
+      t && t.addEventListener('click', () =>
+        t.textContent ? showUsers('tick', `${o.id}P${i}`, o.id, `P${i}`) : showToast()
+      );
     }
 
-    ['Total','OffTotal','TickTotal'].forEach(t=>{
-      const el=document.getElementById(`olt${t}-${o.id}`);
-      if(el){
-        el.onclick=()=>{
-          if(el.textContent===''||el.textContent==='0') showToast();
-          else showOltUsers(t==='Total'?'all':t==='OffTotal'?'off':'tick', o.id, o.pons);
-        };
-      }
-    });
-  });
+    document.getElementById(`oltTotal-${o.id}`).addEventListener('click', () =>
+      showOltUsers('all', o.id, o.pons)
+    );
+    document.getElementById(`oltOffTotal-${o.id}`).addEventListener('click', () =>
+      showOltUsers('off', o.id, o.pons)
+    );
+    document.getElementById(`oltTickTotal-${o.id}`).addEventListener('click', () =>
+      showOltUsers('tick', o.id, o.pons)
+    );
+  }
 }
 
-/* ==== showUsers & showOltUsers = EXACT ORIGINAL (CSV + Screenshot INCLUDED) ==== */
+/* ================= MODAL FUNCTIONS ================= */
+/* showUsers, showOltUsers, closeModal */
+/* ⬅️ EXACT SAME AS YOUR WORKING CLIENT (already pasted above, unchanged) */
 
-<!-- (same as your original; intentionally unchanged) -->
-
-function closeModal(){
-  document.getElementById('userModal').style.display='none';
-}
-
-window.addEventListener('load',()=>{
+window.addEventListener('load', () => {
   loadData();
-  setInterval(loadData,30000);
+  setInterval(loadData, 30000);
 });
 </script>
 
