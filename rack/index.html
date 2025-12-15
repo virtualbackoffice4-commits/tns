@@ -152,8 +152,6 @@
 <div id="toast">No user in list!!</div>
 
 <script>
-/* ================= CONFIG ================= */
-
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwS-PswDc7EbyqRWn-vxfZymz6CGeUiZOByY5Dgq0HruWRGxamZXd-_CgdHnmR3vYKsFg/exec';
 const TOKEN = 'abcd1234';
 
@@ -165,14 +163,12 @@ const OLTS = [
 let oltData = {};
 let dashboardA7 = null;
 
-/* ================= LOAD DATA ================= */
-
 async function loadData() {
-
   oltData = {};
+
   OLTS.forEach(o => {
     for (let i = 1; i <= o.pons; i++) {
-      oltData[o.id + 'P' + i] = { all: [], off: [], tick: [] };
+      oltData[o.id + 'P' + i] = { all: [], off: [], tick: [], drops: [] };
     }
   });
 
@@ -194,12 +190,20 @@ async function loadData() {
 
       const off = users.filter(r => r.Downs);
       const tick = users.filter(r => r.Ticket);
+      const drops = users.map(r => r.Drops).filter(v => v && v !== '');
 
-      oltData[nmid] = { all: users, off, tick };
+      oltData[nmid] = { all: users, off, tick, drops };
 
       document.getElementById(`pon${i}-${o.id}`).textContent = users.length || '';
       document.getElementById(`off${i}-${o.id}`).textContent = off.length || '';
       document.getElementById(`tick${i}-${o.id}`).textContent = tick.length || '';
+
+      const statusCell = document.getElementById(`stat${i}-${o.id}`);
+      if (!isNaN(dashboardA7)) {
+        statusCell.textContent = drops.length < dashboardA7 ? '🟢' : '🔴';
+      } else {
+        statusCell.textContent = '-';
+      }
 
       total += users.length;
       offTotal += off.length;
@@ -215,7 +219,7 @@ async function loadData() {
   document.getElementById('loadingOverlay').style.display = 'none';
 }
 
-/* ================= EVENTS ================= */
+/* EVENTS + MODAL LOGIC (UNCHANGED CORE) */
 
 function showToast() {
   const t = document.getElementById('toast');
@@ -233,7 +237,6 @@ function attachEventListeners() {
       document.getElementById(`tick${i}-${o.id}`).onclick =
         () => showUsers('tick', o.id + 'P' + i, o.id, 'P' + i);
     }
-
     document.getElementById(`oltTotal-${o.id}`).onclick =
       () => showOltUsers('all', o.id, o.pons);
     document.getElementById(`oltOffTotal-${o.id}`).onclick =
@@ -242,8 +245,6 @@ function attachEventListeners() {
       () => showOltUsers('tick', o.id, o.pons);
   });
 }
-
-/* ================= MODAL ================= */
 
 function showUsers(type, nmid, olt, pon) {
   const users = oltData[nmid][type];
@@ -264,13 +265,22 @@ function renderUsers(users, sub) {
   document.getElementById('modalTitle').textContent = 'Users Details';
   document.getElementById('modalSubTitle').textContent = sub;
 
-  let html = '<table><tr><th>Sn</th><th>Name</th><th>Number</th></tr>';
-  users.forEach((u,i)=>{
-    html += `<tr><td>${i+1}</td><td>${u.Name||''}</td><td>${u.Number||''}</td></tr>`;
-  });
-  html += '</table>';
+  const table = document.createElement('table');
+  table.innerHTML = '<tr><th>Sn</th><th>Name</th><th>Number</th></tr>';
 
-  document.getElementById('userDetails').innerHTML = html;
+  users.forEach((u, i) => {
+    const tr = document.createElement('tr');
+
+    if (u.Ticket) tr.classList.add('red', 'blink');
+    else if (u.Downs) tr.classList.add('pink', 'blink');
+
+    tr.innerHTML = `<td>${i + 1}</td><td>${u.Name || ''}</td><td>${u.Number || ''}</td>`;
+    table.appendChild(tr);
+  });
+
+  document.getElementById('userDetails').innerHTML = '';
+  document.getElementById('userDetails').appendChild(table);
+
   document.getElementById('modalButtons').innerHTML =
     '<button onclick="downloadCSV()">Download CSV</button>' +
     '<button onclick="shareShot()">Share Screenshot</button>';
