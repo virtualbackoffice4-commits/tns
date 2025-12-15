@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rack</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -11,13 +12,16 @@
 
 <body>
 
+<!-- LOADING -->
 <div id="loadingOverlay">
   <div class="spinner"></div>
-  <p>Prepairing ...</p>
+  <p>Preparing ...</p>
 </div>
 
+<!-- TABLE -->
 <div id="matrixHolder">
 <table id="matrixTable">
+
 <tr>
   <th></th>
   <th></th>
@@ -31,7 +35,7 @@
   <th colspan="11">TSN Window</th>
 </tr>
 
-<!-- O1I5 -->
+<!-- ================= O1I5 ================= -->
 <tr>
   <th rowspan="4" class="olt-name">O1I5</th>
   <th>Users</th>
@@ -82,83 +86,172 @@
   <td></td>
 </tr>
 
-<!-- O2I6 -->
-<!-- (same structure, unchanged) -->
+<!-- ================= O2I6 ================= -->
+<tr>
+  <th rowspan="4" class="olt-name">O2I6</th>
+  <th>Users</th>
+  <td id="pon1-O2I6" class="clickable">⏳</td>
+  <td id="pon2-O2I6" class="clickable">⏳</td>
+  <td id="pon3-O2I6" class="clickable">⏳</td>
+  <td id="pon4-O2I6" class="clickable">⏳</td>
+  <td id="pon5-O2I6" class="clickable">⏳</td>
+  <td id="pon6-O2I6" class="clickable">⏳</td>
+  <td id="pon7-O2I6" class="clickable">⏳</td>
+  <td id="pon8-O2I6" class="clickable">⏳</td>
+  <td id="oltTotal-O2I6" class="clickable">⏳</td>
+</tr>
+<tr>
+  <th>Offline</th>
+  <td id="off1-O2I6" class="clickable">⏳</td>
+  <td id="off2-O2I6" class="clickable">⏳</td>
+  <td id="off3-O2I6" class="clickable">⏳</td>
+  <td id="off4-O2I6" class="clickable">⏳</td>
+  <td id="off5-O2I6" class="clickable">⏳</td>
+  <td id="off6-O2I6" class="clickable">⏳</td>
+  <td id="off7-O2I6" class="clickable">⏳</td>
+  <td id="off8-O2I6" class="clickable">⏳</td>
+  <td id="oltOffTotal-O2I6" class="clickable">⏳</td>
+</tr>
+<tr>
+  <th>Ticket</th>
+  <td id="tick1-O2I6" class="clickable">⏳</td>
+  <td id="tick2-O2I6" class="clickable">⏳</td>
+  <td id="tick3-O2I6" class="clickable">⏳</td>
+  <td id="tick4-O2I6" class="clickable">⏳</td>
+  <td id="tick5-O2I6" class="clickable">⏳</td>
+  <td id="tick6-O2I6" class="clickable">⏳</td>
+  <td id="tick7-O2I6" class="clickable">⏳</td>
+  <td id="tick8-O2I6" class="clickable">⏳</td>
+  <td id="oltTickTotal-O2I6" class="clickable">⏳</td>
+</tr>
+<tr>
+  <th>Line</th>
+  <td id="stat1-O2I6">⏳</td>
+  <td id="stat2-O2I6">⏳</td>
+  <td id="stat3-O2I6">⏳</td>
+  <td id="stat4-O2I6">⏳</td>
+  <td id="stat5-O2I6">⏳</td>
+  <td id="stat6-O2I6">⏳</td>
+  <td id="stat7-O2I6">⏳</td>
+  <td id="stat8-O2I6">⏳</td>
+  <td></td>
+</tr>
 
-<!-- O3I7 -->
-<!-- (same structure, unchanged) -->
+<!-- ================= O3I7 ================= -->
+<tr>
+  <th rowspan="4" class="olt-name">O3I7</th>
+  <th>Users</th>
+  <td id="pon1-O3I7" class="clickable">⏳</td>
+  <td id="pon2-O3I7" class="clickable">⏳</td>
+  <td id="pon3-O3I7" class="clickable">⏳</td>
+  <td id="pon4-O3I7" class="clickable">⏳</td>
+  <td colspan="4"></td>
+  <td id="oltTotal-O3I7" class="clickable">⏳</td>
+</tr>
+<tr>
+  <th>Offline</th>
+  <td id="off1-O3I7" class="clickable">⏳</td>
+  <td id="off2-O3I7" class="clickable">⏳</td>
+  <td id="off3-O3I7" class="clickable">⏳</td>
+  <td id="off4-O3I7" class="clickable">⏳</td>
+  <td colspan="4"></td>
+  <td id="oltOffTotal-O3I7" class="clickable">⏳</td>
+</tr>
+<tr>
+  <th>Ticket</th>
+  <td id="tick1-O3I7" class="clickable">⏳</td>
+  <td id="tick2-O3I7" class="clickable">⏳</td>
+  <td id="tick3-O3I7" class="clickable">⏳</td>
+  <td id="tick4-O3I7" class="clickable">⏳</td>
+  <td colspan="4"></td>
+  <td id="oltTickTotal-O3I7" class="clickable">⏳</td>
+</tr>
+<tr>
+  <th>Line</th>
+  <td id="stat1-O3I7">⏳</td>
+  <td id="stat2-O3I7">⏳</td>
+  <td id="stat3-O3I7">⏳</td>
+  <td id="stat4-O3I7">⏳</td>
+  <td colspan="4"></td>
+  <td></td>
+</tr>
 
 </table>
 </div>
 
-<!-- MODAL / TOAST SAME AS BEFORE -->
-
+<!-- ================= JS ================= -->
 <script>
-const WEB_APP_URLS = [
-  'https://script.google.com/macros/s/AKfycbwS-PswDc7EbyqRWn-vxfZymz6CGeUiZOByY5Dgq0HruWRGxamZXd-_CgdHnmR3vYKsFg/exec'
-];
+const WEB_APP_URL =
+  'https://script.google.com/macros/s/AKfycbwS-PswDc7EbyqRWn-vxfZymz6CGeUiZOByY5Dgq0HruWRGxamZXd-_CgdHnmR3vYKsFg/exec';
 
 const TOKEN = 'abcd1234';
 const STATUS_LINK = 'https://vbo.co.in/ISP/Lucknow/Merotra/tag';
+
+const OLTS = [
+  { id: 'O1I5', pons: 8 },
+  { id: 'O2I6', pons: 8 },
+  { id: 'O3I7', pons: 4 }
+];
 
 let oltData = {};
 let dashboardA7 = null;
 
 async function loadData() {
 
-  const olts = [
-    { id: 'O1I5', pons: 8 },
-    { id: 'O2I6', pons: 8 },
-    { id: 'O3I7', pons: 4 }
-  ];
-
-  for (let oltObj of olts) {
-    for (let i = 1; i <= oltObj.pons; i++) {
-      oltData[oltObj.id + 'P' + i] = { all: [], off: [], tick: [], drops: [] };
+  // init
+  OLTS.forEach(o => {
+    for (let i = 1; i <= o.pons; i++) {
+      oltData[o.id + 'P' + i] = { all: [], off: [], tick: [], drops: [] };
     }
-  }
+  });
 
   try {
-    const res = await fetch(WEB_APP_URLS[0] + '?token=' + encodeURIComponent(TOKEN));
+    const res = await fetch(WEB_APP_URL + '?token=' + encodeURIComponent(TOKEN));
     const data = await res.json();
 
-    dashboardA7 = data.dashboardA7;
     const rows = data.rows || [];
+    dashboardA7 = data.dashboardA7;
 
-    for (let oltObj of olts) {
+    OLTS.forEach(o => {
       let total = 0, offTotal = 0, tickTotal = 0;
 
-      for (let i = 1; i <= oltObj.pons; i++) {
-        const nmid = oltObj.id + 'P' + i;
-        const filtered = rows.filter(r => (r.NMID || '').toUpperCase() === nmid);
+      for (let i = 1; i <= o.pons; i++) {
+        const nmid = o.id + 'P' + i;
 
-        const offRows = filtered.filter(r => r.Downs);
-        const tickRows = filtered.filter(r => r.Ticket);
-        const dropTimes = filtered.map(r => r.Drops).filter(Boolean);
+        const filtered = rows.filter(r =>
+          (r['NMID'] || '').trim().toUpperCase() === nmid &&
+          (r['Users'] || r['Users'] === 0)
+        );
+
+        const offRows = filtered.filter(r => r['Downs']);
+        const tickRows = filtered.filter(r => r['Ticket']);
+        const dropTimes = filtered.map(r => r['Drops']).filter(Boolean);
 
         oltData[nmid] = { all: filtered, off: offRows, tick: tickRows, drops: dropTimes };
 
-        document.getElementById(`pon${i}-${oltObj.id}`).textContent = filtered.length || '';
-        document.getElementById(`off${i}-${oltObj.id}`).textContent = offRows.length || '';
-        document.getElementById(`tick${i}-${oltObj.id}`).textContent = tickRows.length || '';
+        document.getElementById(`pon${i}-${o.id}`).textContent = filtered.length || '';
+        document.getElementById(`off${i}-${o.id}`).textContent = offRows.length || '';
+        document.getElementById(`tick${i}-${o.id}`).textContent = tickRows.length || '';
 
-        const statusCell = document.getElementById(`stat${i}-${oltObj.id}`);
-        const isOn = dashboardA7 && dropTimes.length < dashboardA7;
-        statusCell.innerHTML = `<a href="${STATUS_LINK}">${isOn ? '🟢' : '🔴'}</a>`;
-
+        const stat = document.getElementById(`stat${i}-${o.id}`);
+        if (dashboardA7 !== null) {
+          const isOn = dropTimes.length < dashboardA7;
+          stat.innerHTML = `<a href="${STATUS_LINK}">${isOn ? '🟢' : '🔴'}</a>`;
+        }
         total += filtered.length;
         offTotal += offRows.length;
         tickTotal += tickRows.length;
       }
 
-      document.getElementById(`oltTotal-${oltObj.id}`).textContent = total || '';
-      document.getElementById(`oltOffTotal-${oltObj.id}`).textContent = offTotal || '';
-      document.getElementById(`oltTickTotal-${oltObj.id}`).textContent = tickTotal || '';
-    }
+      document.getElementById(`oltTotal-${o.id}`).textContent = total || '';
+      document.getElementById(`oltOffTotal-${o.id}`).textContent = offTotal || '';
+      document.getElementById(`oltTickTotal-${o.id}`).textContent = tickTotal || '';
+    });
 
     document.getElementById('loadingOverlay').style.display = 'none';
-  } catch (e) {
-    console.error(e);
+
+  } catch (err) {
+    console.error(err);
     document.getElementById('loadingOverlay').style.display = 'none';
   }
 }
