@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Employee Attendance System</title>
+  <meta http-equiv="Permissions-Policy" content="identity-credentials-get=self">
+  <meta name="google-signin-use_fedcm" content="true">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      margin: 20px 0;
+    }
+    .header {
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 25px;
+      position: relative;
+    }
+    .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+    .header p { margin: 5px 0 0; color: #666; font-size: 18px; font-weight: 600; }
+    select, textarea, input[type="text"], input[type="email"] {
+      display: block;
+      width: 100%;
+      margin: 12px 0;
+      padding: 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+      font-family: inherit;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 0.5rem center;
+      background-repeat: no-repeat;
+      background-size: 1.5em 1.5em;
+      padding-right: 2.5rem;
+    }
+    select:focus, textarea:focus, input[type="text"]:focus, input[type="email"]:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    label {
+      font-weight: 600;
+      color: #4a5568;
+      margin-top: 4px;
+      margin-bottom: 0;
+    }
+    button, input[type="file"] {
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      margin: 10px 0;
+      font-weight: 600;
+      font-size: 18px;
+      transition: all 0.3s;
+      width: 100%;
+      color: white;
+      background: #999;
+      cursor: not-allowed;
+      text-align: center;
+      display: inline-block;
+      overflow: hidden;
+    }
+    input[type="file"] {
+      background: #48bb78;
+      cursor: pointer;
+      color: white;
+      font-family: inherit;
+      padding: 12px;
+      position: relative;
+    }
+    input[type="file"]::-webkit-file-upload-button {
+      visibility: hidden;
+    }
+    input[type="file"]::before {
+      content: "🏍️ Bike meter reading photo";
+      display: inline-block;
+      background: #48bb78;
+      border-radius: 10px;
+      padding: 12px 20px;
+      outline: none;
+      white-space: nowrap;
+      -webkit-user-select: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 18px;
+      color: white;
+      text-align: center;
+      width: 100%;
+    }
+    input[type="file"]:hover::before {
+      background: #38a169;
+    }
+    button.enabled {
+      background: #48bb78;
+      cursor: pointer;
+    }
+    button.enabled:hover, input[type="file"]:hover {
+      background: #38a169;
+      transform: translateY(-2px);
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+    video, canvas {
+      width: 100%;
+      max-width: 280px;
+      max-height: 210px;
+      border-radius: 12px;
+      background: #000;
+      margin: 15px auto;
+      display: block;
+    }
+    .preview-img {
+      max-width: 280px;
+      max-height: 210px;
+      border-radius: 12px;
+      display: block;
+      margin: 0 auto;
+    }
+    .bike-preview {
+      max-width: 100px;
+      max-height: 75px;
+      border-radius: 8px;
+      display: block;
+      margin: 10px auto;
+    }
+    .welcome {
+      font-size: 16px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #4a5568;
+      text-align: center;
+      display: none;
+    }
+    .result {
+      margin-top: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .success {
+      background: #c6f6d5;
+      color: #22543d;
+      border: 1px solid #9ae6b4;
+    }
+    .error {
+      background: #fed7d7;
+      color: #742a2a;
+      border: 1px solid #fc8181;
+    }
+    .loading {
+      background: #bee3f8;
+      color: #2c5282;
+      border: 1px solid #90cdf4;
+    }
+    .toast {
+      visibility: hidden;
+      min-width: 250px;
+      margin: auto;
+      background-color: #333;
+      color: #fff;
+      text-align: center;
+      border-radius: 10px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1000;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .toast.show {
+      visibility: visible;
+      animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    @keyframes fadein {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes fadeout {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    #readingPhotoLabel {
+      display: none;
+    }
+    #checkLocation {
+      background: #667eea;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 10px;
+      margin: 10px 0;
+      font-weight: 600;
+      font-size: 18px;
+      transition: all 0.3s;
+      width: 100%;
+      border: none;
+      cursor: pointer;
+    }
+    #checkLocation:hover {
+      background: #5a67d8;
+      transform: translateY(-2px);
+    }
+    #datetime {
+      text-align: right;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 300px;
+      border-radius: 10px;
+      text-align: center;
+      animation: fadeIn 0.3s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #modalOk {
+      background: #48bb78;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #modalOk:hover {
+      background: #38a169;
+    }
+    #attendanceModal .modal-content {
+      max-width: 90%;
+      width: auto;
+      overflow-x: auto;
+    }
+    #attendanceTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #attendanceTable th, #attendanceTable td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    #attendanceTable th {
+      background-color: #f2f2f2;
+    }
+    #attendanceTable a {
+      color: #667eea;
+      text-decoration: none;
+    }
+    #attendanceTable a:hover {
+      text-decoration: underline;
+    }
+    #attendanceFilter {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+    #checkAttendance {
+      background: #667eea;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-weight: 500;
+      font-size: 16px;
+      width: auto;
+      display: none;
+    }
+    #checkAttendance:hover {
+      background: #5a67d8;
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .card { padding: 20px; margin: 10px 0; }
+      .header h1 { font-size: 24px; }
+      .header p { font-size: 16px; }
+      button, input[type="file"] { font-size: 16px; padding: 14px; }
+      video, .preview-img { max-width: 100%; max-height: 200px; }
+      select { padding-right: 2rem; font-size: 16px; }
+      #datetime { font-size: 12px; margin-bottom: 5px; }
+    }
+    @media (max-width: 480px) {
+      body { padding: 5px; }
+      .card { padding: 15px; }
+      .header h1 { font-size: 22px; }
+      button, input[type="file"] { font-size: 15px; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <div id="datetime"></div>
+      <h1>👤 Attendance</h1>
+      <p>Technocrates</p>
+    </div>
+    <div class="welcome" id="welcome">Welcome, <span id="userEmail">Not signed in</span></div>
+    <div id="gSignInWrapper" style="text-align:center; margin-bottom:20px;">
+      <div id="g_id_onload"
+           data-client_id="415169964515-vlf28tsj228j6dma3ot6s10eeudhkas2.apps.googleusercontent.com"
+           data-callback="handleCredentialResponse"
+           data-scope="profile email">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-shape="rect"
+           data-theme="outline"
+           data-text="signin_with"
+           data-size="large"
+           data-logo_alignment="center">
+      </div>
+      <p id="signOutBtn" style="display:none;cursor:pointer;color:#667eea;text-decoration:underline;">Change mail ID</p>
+    </div>
+    <button id="checkAttendance">Check my attendance</button>
+    <select id="status" required disabled>
+      <option value="" disabled selected>Select attendance</option>
+      <option value="Duty start">Duty start</option>
+      <option value="Lunch start">Lunch start</option>
+      <option value="Lunch done">Lunch done</option>
+      <option value="Duty off">Duty off</option>
+    </select>
+    <button id="checkLocation" style="display:none;">Reached office?</button>
+    <textarea id="bikeReading" placeholder="Bike Reading (numbers only)"></textarea>
+    <label id="readingPhotoLabel" for="bikePhoto">Bike meter reading photo</label>
+    <input type="file" id="bikePhoto" accept="image/*" capture="environment" />
+    <div id="bikePreviewArea" style="text-align: center;"></div>
+    <button id="markAttendance" disabled>Click to mark attendance</button>
+    <video id="video" autoplay playsinline style="display:none;"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="previewArea"></div>
+    <div id="statusMsg" class="result" style="display:none;"></div>
+    <div id="toast" class="toast"></div>
+  </div>
+  <!-- Modal for location messages -->
+  <div id="locationModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p id="modalMessage"></p>
+      <button id="modalOk">OK</button>
+    </div>
+  </div>
+  <!-- Modal for attendance records -->
+  <div id="attendanceModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Attendance Records</h2>
+      <select id="attendanceFilter">
+        <option value="All">All</option>
+        <option value="Full day">Full day</option>
+        <option value="Late">Late</option>
+        <option value="Half day">Half day</option>
+        <option value="Off">Off</option>
+        <option value="Incomplete attendance">Incomplete</option>
+      </select>
+      <table id="attendanceTable">
+        <thead>
+          <tr>
+            <th>Serial</th>
+            <th>Date</th>
+            <th>Duty Start</th>
+            <th>Lunch Start</th>
+            <th>Lunch Done</th>
+            <th>Duty Off</th>
+            <th>Attendance</th>
+            <th>Bike Running</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylgOCok7wb4JizI_xWTvuc82Up_eAObDY0txfjf1-O5Mla-Qg3vU1AdmZxlWQG_g9v1A/exec";
+    const allowedOfficeLocation = { lat: 26.849701, lon: 80.913972 };
+    const allowedRadiusMeters = 200;
+    const elements = {
+      status: document.getElementById('status'),
+      checkLocation: document.getElementById('checkLocation'),
+      bikeReading: document.getElementById('bikeReading'),
+      bikePhoto: document.getElementById('bikePhoto'),
+      welcome: document.getElementById('welcome'),
+      userEmail: document.getElementById('userEmail'),
+      markAttendanceBtn: document.getElementById('markAttendance'),
+      video: document.getElementById('video'),
+      canvas: document.getElementById('canvas'),
+      previewArea: document.getElementById('previewArea'),
+      bikePreviewArea: document.getElementById('bikePreviewArea'),
+      statusMsg: document.getElementById('statusMsg'),
+      locationModal: document.getElementById('locationModal'),
+      modalMessage: document.getElementById('modalMessage'),
+      modalOk: document.getElementById('modalOk'),
+      checkAttendance: document.getElementById('checkAttendance'),
+      attendanceModal: document.getElementById('attendanceModal'),
+      attendanceFilter: document.getElementById('attendanceFilter'),
+      attendanceTable: document.getElementById('attendanceTable'),
+      toast: document.getElementById('toast')
+    };
+    let stream = null;
+    let lastDataUrl = null;
+    let userEmailValue = '';
+    let isUploading = false;
+    let currentLocation = null;
+    let verificationMessage = '';
+    let attendanceData = [];
+    let todayAttendanceCount = 0;
+    function showModal(message) {
+      elements.modalMessage.textContent = message;
+      elements.locationModal.style.display = 'flex';
+    }
+    function showToast(message) {
+      elements.toast.textContent = message;
+      elements.toast.className = 'toast show';
+      setTimeout(() => {
+        elements.toast.className = 'toast';
+      }, 3000);
+    }
+    const modalClose = document.getElementsByClassName("close")[0];
+    modalClose.onclick = () => {
+      elements.locationModal.style.display = "none";
+    };
+    elements.modalOk.onclick = () => {
+      elements.locationModal.style.display = "none";
+    };
+    window.onclick = (event) => {
+      if (event.target == elements.locationModal) {
+        elements.locationModal.style.display = "none";
+      }
+      if (event.target == elements.attendanceModal) {
+        elements.attendanceModal.style.display = "none";
+      }
+    };
+    const attendanceModalClose = elements.attendanceModal.querySelector('.close');
+    attendanceModalClose.onclick = () => {
+      elements.attendanceModal.style.display = "none";
+    };
+    async function updateAttendanceOptions() {
+      if (!userEmailValue) {
+        elements.status.innerHTML = `<option value="" disabled selected>Select attendance</option>`;
+        elements.status.disabled = true;
+        return;
+      }
+      try {
+        const response = await fetch(`${SCRIPT_URL}?action=getAttendanceCount&email=${encodeURIComponent(userEmailValue)}`);
+        const data = await response.json();
+        todayAttendanceCount = data.count || 0;
+        const allOptions = [
+          { value: "Duty start", text: "Duty start" },
+          { value: "Lunch start", text: "Lunch start" },
+          { value: "Lunch done", text: "Lunch done" },
+          { value: "Duty off", text: "Duty off" }
+        ];
+        elements.status.innerHTML = `<option value="" disabled selected>Select attendance</option>`;
+        if (todayAttendanceCount < 4) {
+          const expectedOption = allOptions[todayAttendanceCount];
+          elements.status.innerHTML += `<option value="${expectedOption.value}">${expectedOption.text}</option>`;
+          elements.status.disabled = false;
+        } else {
+          elements.status.disabled = true;
+        }
+        updateButtonState();
+      } catch (err) {
+        console.error('Error fetching attendance count:', err);
+        elements.status.disabled = true;
+      }
+    }
+    function handleCredentialResponse(response) {
+      try {
+        const responsePayload = decodeJwtResponse(response.credential);
+        userEmailValue = responsePayload.email || '';
+        elements.userEmail.textContent = userEmailValue || 'Sign-in failed';
+        if (userEmailValue) {
+          elements.welcome.style.display = 'block';
+          elements.checkAttendance.style.display = 'block';
+          updateAttendanceOptions(); // Fetch attendance count on sign-in
+        } else {
+          elements.welcome.style.display = 'none';
+          elements.checkAttendance.style.display = 'none';
+          elements.status.disabled = true;
+        }
+        updateButtonState();
+        toggleSignIn(!userEmailValue);
+      } catch (err) {
+        console.error('Sign-in error:', err);
+        elements.userEmail.textContent = 'Sign-in failed';
+        elements.welcome.style.display = 'none';
+        elements.checkAttendance.style.display = 'none';
+        elements.status.disabled = true;
+        toggleSignIn(true);
+      }
+    }
+    function decodeJwtResponse(token) {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      return JSON.parse(jsonPayload);
+    }
+    function signOut() {
+      google.accounts.id.disableAutoSelect();
+      google.accounts.id.revoke(userEmailValue, () => {
+        userEmailValue = '';
+        elements.userEmail.textContent = 'Not signed in';
+        elements.welcome.style.display = 'none';
+        elements.checkAttendance.style.display = 'none';
+        elements.status.disabled = true;
+        elements.markAttendanceBtn.disabled = true;
+        elements.markAttendanceBtn.classList.remove('enabled');
+        toggleSignIn(true);
+        updateAttendanceOptions();
+      });
+    }
+    document.getElementById('signOutBtn').addEventListener('click', signOut);
+    function toggleSignIn(showSignIn) {
+      document.querySelector('.g_id_signin').style.display = showSignIn ? 'block' : 'none';
+      document.getElementById('signOutBtn').style.display = showSignIn ? 'none' : 'block';
+    }
+    function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371e3;
+      const toRad = x => x * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+    function updateButtonState() {
+      const statusVal = elements.status.value;
+      if (!userEmailValue || todayAttendanceCount >= 4) {
+        elements.markAttendanceBtn.disabled = true;
+        elements.markAttendanceBtn.classList.remove('enabled');
+        elements.checkLocation.style.display = 'none';
+        return;
+      }
+      if (statusVal === "Duty start" || statusVal === "Duty off") {
+        elements.checkLocation.style.display = 'block';
+        elements.markAttendanceBtn.disabled = true;
+        elements.markAttendanceBtn.classList.remove('enabled');
+      } else if (statusVal === "Lunch start" || statusVal === "Lunch done") {
+        elements.checkLocation.style.display = 'none';
+        elements.markAttendanceBtn.disabled = false;
+        elements.markAttendanceBtn.classList.add('enabled');
+      } else {
+        elements.checkLocation.style.display = 'none';
+        elements.markAttendanceBtn.disabled = true;
+        elements.markAttendanceBtn.classList.remove('enabled');
+      }
+    }
+    elements.status.addEventListener('change', updateButtonState);
+    elements.checkLocation.onclick = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const dist = getDistanceFromLatLonInMeters(
+            pos.coords.latitude, pos.coords.longitude,
+            allowedOfficeLocation.lat, allowedOfficeLocation.lon
+          );
+          console.log('Current position:', pos.coords.latitude, pos.coords.longitude);
+          console.log('Accuracy:', pos.coords.accuracy);
+          console.log('Distance:', dist);
+          const isWithinRange = dist <= allowedRadiusMeters;
+          elements.markAttendanceBtn.disabled = !isWithinRange;
+          elements.markAttendanceBtn.classList.toggle('enabled', isWithinRange);
+          currentLocation = `${pos.coords.latitude},${pos.coords.longitude}`;
+          if (!isWithinRange) {
+            verificationMessage = `You are ${dist.toFixed(0)} meters away from the office. Must be within ${allowedRadiusMeters} meters. Accuracy: ${pos.coords.accuracy.toFixed(0)} meters.`;
+            showModal(verificationMessage);
+          } else {
+            verificationMessage = `Location verified. You are within range. Accuracy: ${pos.coords.accuracy.toFixed(0)} meters.`;
+            showModal(verificationMessage);
+          }
+        }, err => {
+          console.error('Geolocation error:', err);
+          verificationMessage = 'Geolocation error: ' + err.message + '. Please ensure location services are enabled and permission is granted.';
+          showModal(verificationMessage);
+          elements.markAttendanceBtn.disabled = true;
+          elements.markAttendanceBtn.classList.remove('enabled');
+        }, { timeout: 20000, maximumAge: 0, enableHighAccuracy: true });
+      } else {
+        verificationMessage = 'Geolocation is not supported by this browser.';
+        showModal(verificationMessage);
+        elements.markAttendanceBtn.disabled = true;
+        elements.markAttendanceBtn.classList.remove('enabled');
+      }
+    };
+    elements.bikePhoto.addEventListener('change', () => {
+      const file = elements.bikePhoto.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            let quality = 0.8;
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (atob(dataUrl.split(',')[1]).length > 100 * 1024 && quality > 0.2) {
+              quality -= 0.1;
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            elements.bikePreviewArea.innerHTML = `<img src="${dataUrl}" class="bike-preview" alt="Bike Preview">`;
+          };
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    elements.bikeReading.addEventListener('input', () => {
+      const value = elements.bikeReading.value.trim();
+      if (value && !/^(0|[1-9]\d*)$/.test(value)) {
+        elements.bikeReading.setCustomValidity("Bike Reading must contain only numbers (0 or positive integers).");
+      } else {
+        elements.bikeReading.setCustomValidity("");
+      }
+    });
+    elements.markAttendanceBtn.onclick = async () => {
+      if (elements.markAttendanceBtn.disabled || isUploading) return;
+      if (!elements.status.value) {
+        showToast('Please select attendance status');
+        return;
+      }
+      if (!userEmailValue) {
+        showToast('Please sign in');
+        return;
+      }
+      if (todayAttendanceCount >= 4) {
+        showToast('You have done for the day!');
+        return;
+      }
+      const bikeReadingVal = elements.bikeReading.value.trim();
+      if (bikeReadingVal && !/^(0|[1-9]\d*)$/.test(bikeReadingVal)) {
+        showToast('Bike Reading must contain only numbers (0 or positive integers).');
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: 320, height: 240 },
+          audio: false
+        });
+        elements.video.style.display = 'block';
+        elements.video.srcObject = stream;
+        elements.markAttendanceBtn.textContent = "Click to mark attendance";
+        elements.markAttendanceBtn.onclick = captureAndSend;
+      } catch (err) {
+        console.error('Camera error:', err);
+        showToast('Camera access denied or unavailable: ' + err.message);
+      }
+    };
+    function captureAndSend() {
+      elements.canvas.width = 280;
+      elements.canvas.height = 210;
+      const ctx = elements.canvas.getContext('2d');
+      ctx.drawImage(elements.video, 0, 0, 280, 210);
+      let quality = 0.8;
+      let dataUrl = elements.canvas.toDataURL('image/jpeg', quality);
+      while (atob(dataUrl.split(',')[1]).length > 90 * 1024 && quality > 0.2) {
+        quality -= 0.1;
+        dataUrl = canvas.toDataURL('image/jpeg', quality);
+      }
+      lastDataUrl = dataUrl;
+      elements.previewArea.innerHTML =
+        `<h4 style="text-align:center; margin:10px 0;">✅ Preview (${(atob(dataUrl.split(',')[1]).length/1024).toFixed(1)}KB)</h4>` +
+        `<img src="${dataUrl}" class="preview-img">`;
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      elements.video.style.display = 'none';
+      sendAttendance();
+    }
+    async function sendAttendance() {
+      if (!lastDataUrl) {
+        showToast('Please capture selfie first');
+        return;
+      }
+      isUploading = true;
+      elements.markAttendanceBtn.textContent = '⏳ Uploading...';
+      elements.markAttendanceBtn.disabled = true;
+      elements.markAttendanceBtn.classList.remove('enabled');
+      const statusVal = elements.status.value;
+      const bikeReadingVal = elements.bikeReading.value.trim() || "N/A";
+      const bikePhotoFile = elements.bikePhoto.files[0];
+      let bikePhotoData = null;
+      if (bikePhotoFile) {
+        bikePhotoData = await compressAndBase64(bikePhotoFile);
+      }
+      const payload = {
+        name: userEmailValue,
+        status: statusVal,
+        remarks: bikeReadingVal,
+        imageBase64: lastDataUrl,
+        bikePhotoBase64: bikePhotoData || null,
+        location: currentLocation || "",
+        verificationMessage: verificationMessage || ""
+      };
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        elements.statusMsg.style.display = 'block';
+        elements.statusMsg.innerHTML =
+          `✅ <strong>Done!</strong><br>` +
+          `Time: ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}<br>` +
+          `Attendance recorded!`;
+        elements.statusMsg.className = 'result success';
+        elements.status.selectedIndex = 0;
+        elements.bikeReading.value = '';
+        elements.bikePhoto.value = '';
+        elements.previewArea.innerHTML = '';
+        elements.bikePreviewArea.innerHTML = '';
+        lastDataUrl = null;
+        elements.markAttendanceBtn.textContent = 'Click to mark attendance';
+        todayAttendanceCount++;
+        updateAttendanceOptions();
+      } catch (err) {
+        console.error('Upload error:', err);
+        elements.statusMsg.style.display = 'block';
+        elements.statusMsg.textContent = '❌ Upload failed: ' + err.message;
+        elements.statusMsg.className = 'result error';
+        elements.markAttendanceBtn.textContent = 'Click to mark attendance';
+        updateButtonState();
+      } finally {
+        isUploading = false;
+      }
+    }
+    async function compressAndBase64(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+              if (width > 800) {
+                height *= 800 / width;
+                width = 800;
+              }
+            } else {
+              if (height > 800) {
+                width *= 800 / height;
+                height = 800;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            let quality = 0.8;
+            let dataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (atob(dataUrl.split(',')[1]).length > 100 * 1024 && quality > 0.2) {
+              quality -= 0.1;
+              dataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            resolve(dataUrl);
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    function updateDateTime() {
+      const now = new Date();
+      const date = now.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('datetime').textContent = `${date} ${time}`;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+    elements.checkAttendance.onclick = async () => {
+      if (!userEmailValue) return;
+      try {
+        const response = await fetch(`${SCRIPT_URL}?action=getAttendance&email=${encodeURIComponent(userEmailValue)}`);
+        attendanceData = await response.json();
+        if (attendanceData.length > 0) {
+          elements.userEmail.textContent = attendanceData[0][1]; // Use name from first row
+        }
+        renderAttendanceTable('All');
+        elements.attendanceModal.style.display = 'flex';
+      } catch (err) {
+        console.error('Error fetching attendance:', err);
+        alert('Failed to fetch attendance records.');
+      }
+    };
+    elements.attendanceFilter.addEventListener('change', (e) => {
+      renderAttendanceTable(e.target.value);
+    });
+    function groupByDate(data) {
+      const groups = new Map();
+      data.forEach(row => {
+        const tsStr = row[0];
+        const ts = new Date(tsStr);
+        const dateKey = ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (!groups.has(dateKey)) {
+          groups.set(dateKey, {
+            dutyStart: null,
+            lunchStart: null,
+            lunchDone: null,
+            dutyOff: null,
+            dutyStartReading: null,
+            dutyOffReading: null,
+            dutyStartBikeUrl: null,
+            dutyOffBikeUrl: null,
+            tsMap: new Map()
+          });
+        }
+        const type = row[2];
+        const time = ts.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const group = groups.get(dateKey);
+        if (type === 'Duty start') {
+          group.dutyStart = time;
+          group.dutyStartReading = row[3] !== "N/A" ? parseInt(row[3]) : null;
+          group.dutyStartBikeUrl = row[5] || null;
+        }
+        if (type === 'Lunch start') group.lunchStart = time;
+        if (type === 'Lunch done') group.lunchDone = time;
+        if (type === 'Duty off') {
+          group.dutyOff = time;
+          group.dutyOffReading = row[3] !== "N/A" ? parseInt(row[3]) : null;
+          group.dutyOffBikeUrl = row[5] || null;
+        }
+        group.tsMap.set(type, ts);
+      });
+      return groups;
+    }
+    function renderAttendanceTable(filter) {
+      const tbody = elements.attendanceTable.querySelector('tbody');
+      tbody.innerHTML = '';
+      const dateGroups = groupByDate(attendanceData);
+      const today = new Date();
+      const dates = [];
+      for (let i = 0; i < 45; i++) {
+        const d = new Date(today.getTime() - i * 24 * 60 * 60 * 1000);
+        const dateKey = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        dates.push(dateKey);
+      }
+      const rows = [];
+      dates.forEach((dateKey, index) => {
+        const group = dateGroups.get(dateKey) || {
+          dutyStart: null,
+          lunchStart: null,
+          lunchDone: null,
+          dutyOff: null,
+          dutyStartReading: null,
+          dutyOffReading: null,
+          dutyStartBikeUrl: null,
+          dutyOffBikeUrl: null,
+          tsMap: new Map()
+        };
+        const attendance = computeAttendance(group);
+        const bikeRunning = (group.dutyStartReading != null && group.dutyOffReading != null)
+          ? (group.dutyOffReading - group.dutyStartReading) : '--';
+        const bikeUrl = group.dutyOffBikeUrl || group.dutyStartBikeUrl || '--';
+        if (filter === 'All' || attendance === filter) {
+          rows.push({
+            date: dateKey,
+            dutyStart: group.dutyStart || '--',
+            lunchStart: group.lunchStart || '--',
+            lunchDone: group.lunchDone || '--',
+            dutyOff: group.dutyOff || '--',
+            attendance,
+            bikeRunning
+          });
+        }
+      });
+      rows.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${row.date}</td>
+          <td>${row.dutyStart}</td>
+          <td>${row.lunchStart}</td>
+          <td>${row.lunchDone}</td>
+          <td>${row.dutyOff}</td>
+          <td>${row.attendance}</td>
+          <td>${row.bikeRunning}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+    function computeAttendance(group) {
+      const hasDutyStart = !!group.tsMap.get('Duty start');
+      const hasDutyOff = !!group.tsMap.get('Duty off');
+      const hasLunchStart = !!group.tsMap.get('Lunch start');
+      const hasLunchDone = !!group.tsMap.get('Lunch done');
+      if (!hasDutyStart && !hasDutyOff && !hasLunchStart && !hasLunchDone) {
+        return 'Off';
+      }
+      if ((hasDutyStart && !hasDutyOff) || (!hasDutyStart && hasDutyOff)) {
+        return 'Incomplete attendance';
+      }
+      if ((hasLunchStart && !hasLunchDone) || (!hasLunchStart && hasLunchDone)) {
+        return 'Incomplete attendance';
+      }
+      const dutyStartTs = group.tsMap.get('Duty start');
+      const dutyOffTs = group.tsMap.get('Duty off');
+      if (!dutyStartTs || !dutyOffTs) {
+        return 'Incomplete attendance';
+      }
+      let totalHours = (dutyOffTs - dutyStartTs) / 3600000;
+      if (hasLunchStart && hasLunchDone) {
+        const lunchStartTs = group.tsMap.get('Lunch start');
+        const lunchDoneTs = group.tsMap.get('Lunch done');
+        if (lunchStartTs && lunchDoneTs) {
+          const lunchHours = (lunchDoneTs - lunchStartTs) / 3600000;
+          totalHours = totalHours - lunchHours;
+        }
+      }
+      if (!(totalHours > 0)) {
+        return 'Off';
+      }
+      if (totalHours >= 8.5) return 'Full day';
+      if (totalHours >= 7.5 && totalHours < 8.5) return 'Late';
+      return 'Half day';
+    }
+    window.onload = () => {
+      google.accounts.id.initialize({
+        client_id: '333245582834-m1u6kn51f7cscdkccsbcgfbav0mn5vm1.apps.googleusercontent.com',
+        callback: handleCredentialResponse,
+        auto_select: false,
+        use_fedcm_for_prompt: true,
+        scope: 'profile email'
+      });
+      google.accounts.id.renderButton(
+        document.querySelector('.g_id_signin'),
+        { theme: 'outline', size: 'large', type: 'standard' }
+      );
+    };
+  </script>
+</body>
+</html>
