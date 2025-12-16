@@ -1,567 +1,551 @@
-<xaiArtifact artifact_id="fcb58878-48b9-4190-82f7-f1933e6d5ef6" artifact_version_id="0a8b3dc0-90dc-4bdf-b631-d53052fe93dc" title="index.html" contentType="text/html">
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Tag Splitter</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" />
+  <title>Check users on this line</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <link rel="stylesheet" href="style.css">
-<style>
-/* Modal overlay */
-.modal-overlay {
-  display: none; /* hidden by default */
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
-  z-index: 1000;
-  justify-content: center;
-  align-items: center;
-}
-/* Modal box */
-.modal-box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 320px;
-  width: 90%;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  animation: fadeIn 0.3s ease-in-out;
-}
-/* Text */
-.modal-message {
-  font-size: 16px;
-  color: #1f2937; /* dark text */
-  margin-bottom: 15px;
-}
-/* Buttons inside modal */
-.modal-actions {
-  display: flex;
-  justify-content: space-around;
-  gap: 10px;
-}
-.modal-actions .btn {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  border: none;
-  font-size: 14px;
-  transition: background 0.2s;
-}
-.modal-actions .btn:hover {
-  opacity: 0.9;
-}
-/* Danger (red) button */
-.modal-actions .btn.danger {
-  background: #dc2626;
-  color: #fff;
-}
-@keyframes fadeIn {
-  from {opacity: 0; transform: translateY(-10px);}
-  to {opacity: 1; transform: translateY(0);}
-}
- 
-.btn.danger {
-  background-color: #dc2626; /* Red color */
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.btn.danger:hover {
-  background-color: #b91c1c; /* Darker red on hover */
-}
- 
-/* File input custom style with camera icon */
-input[type="file"] {
-  display: block;
-  padding: 8px;
-  border: 2px dashed #aaa;
-  border-radius: 8px;
-  background: #f9f9f9 url('https://cdn-icons-png.flaticon.com/512/685/685655.png') no-repeat 10px center;
-  background-size: 20px 20px;
-  padding-left: 40px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-input[type="file"].selected {
-  border-color: #45b08e;      /* green border */
-  background-color: #e6ffed;  /* light green background */
-}
-
-
-  
-input[type="file"]:hover {
-  border-color: #007bff;
-  background-color: #eef6ff;
-}
-input[type="file"]::-webkit-file-upload-button {
-  visibility: hidden;
-}
-input[type="file"]::before {
-  content: "📷 Choose Photo";
-  display: inline-block;
-  background: #007bff;
-  color: white;
-  padding: 6px 12px;
-  border-radius: 5px;
-  font-size: 14px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-input[type="file"]:hover::before {
-  background: #0056b3;
-}
-</style>
+  <style>
+    /* ---------- Basic layout ---------- */
+    body {font-family: Arial, Helvetica, sans-serif; margin:16px; background:#f7fafc; color:#111827;}
+    .page-title {font-size:20px; margin:0 0 12px 0;}
+    .card {background:#fff; padding:12px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.06); max-width:900px; margin-bottom:12px;}
+    .row {margin:8px 0; display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+    .muted {color:#6b7280;}
+    .hidden {display:none;}
+    .btn {padding:8px 12px; border-radius:6px; border:none; cursor:pointer; font-weight:600;}
+    .btn.primary {background:#0ea5a4; color:#fff;}
+    .btn.success {background:#10b981; color:#fff;}
+    .btn.danger {background:#ef4444; color:#fff;}
+    .btn.disabled {background:#9ca3af !important; cursor:not-allowed; opacity:0.7;}
+    select,input[type="text"],input[type="number"],textarea {padding:8px; border-radius:6px; border:1px solid #d1d5db; min-width:220px;}
+    textarea {min-height:80px; width:100%;}
+    input[type="file"] {display:block; padding:8px; border-radius:8px; border:2px dashed #aaa; background:#f9f9f9; cursor:pointer; width:100%;}
+    .small-text {font-size:12px;}
+    .center {justify-content:center;}
+    .actions {display:flex; gap:8px; align-items:center;}
+    .timer-text {font-weight:600; color:#dc2626; min-width:80px;}
+    /* spinner / toast / modal – unchanged */
+    .spinner-overlay {position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.35); z-index:9999;}
+    .spinner {width:48px; height:48px; border-radius:50%; border:5px solid #f3f4f6; border-top-color:#3b82f6; animation:spin 1s linear infinite;}
+    @keyframes spin {to{transform:rotate(360deg);}}
+    .toast {position:fixed; right:12px; bottom:12px; background:#111827; color:#fff; padding:8px 12px; border-radius:8px; z-index:10001; opacity:0.95;}
+    .toast.success{background:#059669;}.toast.error{background:#dc2626;}.toast.info{background:#0ea5a4;}
+    .modal-overlay {display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:2000; align-items:center; justify-content:center;}
+    .modal-box {background:#fff; padding:16px; border-radius:10px; max-width:980px; width:95%; max-height:85vh; overflow:auto; box-shadow:0 8px 30px rgba(0,0,0,0.2);}
+    table {width:100%; border-collapse:collapse; margin-top:8px;}
+    th,td {padding:8px; border:1px solid #e5e7eb; text-align:left; font-size:13px;}
+    th {background:#f3f4f6;}
+    .selected {border-color:#45b08e; background:#e6ffed;}
+    .timestamp-display {font-size:13px; color:#374151; margin-left:6px; min-width:260px; display:inline-block;}
+    @keyframes blink {50%{opacity:0;}}
+    .blink {animation:blink 1s infinite;}
+    #statusDot {font-size:18px; margin-right:8px; vertical-align:middle;}
+    #userListStatus {display:flex; align-items:center; gap:6px; margin-bottom:8px; font-weight:700;}
+  </style>
 </head>
 <body>
-  <header>
-    <h2 class="page-title">Tag Splitter</h2>
-  </header>
-  <!-- Sign-in card -->
+  <header><h2 class="page-title">Check users on this line</h2></header>
+
+  <!-- Sign‑in card -->
   <div id="signinCard" class="card">
-    <div class="row center">
-      <div id="signinBtn"></div>
-    </div>
-    <div id="accessMsg" class="row muted small-text">
-      Please contact Admin if your ID is not registered!
-    </div>
-    <div id="deniedMsg" class="row error hidden">
-      Access denied — Contact admin for allowing your mail ID!
-    </div>
+    <div class="row center"><div id="signinBtn"></div></div>
+    <div id="accessMsg" class="row muted small-text">Please contact Admin if your ID is not registered!</div>
+    <div id="deniedMsg" class="row" style="color:#b91c1c; display:none;">Access denied — Contact admin for allowing your mail ID!</div>
   </div>
+
   <!-- Form card -->
   <div id="formCard" class="card hidden">
     <div class="row muted" id="whoami"></div>
-  
     <form id="dataForm" class="form">
       <input type="email" name="email" class="hidden" readonly required />
       <input type="hidden" name="startTime" />
-<div class="row">
-  <select name="windowoption" required>
-    <option value="">Select Window</option>
-    <option>Merotra</option>
-    <option>Sunny</option>
-  </select>
-</div>
-      <div class="form-step">Step 1 - स्टार्ट टैगिंग पर क्लिक करें</div>
-      <div id="locationRow" class="row hidden">
-        <input type="text" name="locationLink" placeholder="Enter Google Maps Link" />
+      <div class="row">
+        <select name="windowoption" required>
+          <option value="">Select Window</option>
+          <option>Merotra</option><option>Sunny</option>
+        </select>
       </div>
-      <button type="button" id="startTaggingBtn" class="btn primary" onclick="startTagging()">Start Tagging</button>
-      <div class="form-step">Step 2 - स्प्लिटर इनपुट तोड़ें(बेंट नहीं करना है तोड़ना है)</div>
+
+      <!-- Timestamp buttons -->
+      <div class="row">
+        <button type="button" id="tsBtn1" class="btn primary">पहली बार जोड़ते ही तुरंत क्लिक करें</button>
+        <span id="ts1disp" class="timestamp-display"></span>
+        <span id="timer1" class="timer-text hidden"></span>
+      </div>
+      <div class="row">
+        <button type="button" id="tsBtn2" class="btn primary disabled" disabled>दूसरी बार जोड़ते ही तुरंत क्लिक करें</button>
+        <span id="ts2disp" class="timestamp-display"></span>
+        <span id="timer2" class="timer-text hidden"></span>
+      </div>
+      <div class="row">
+        <button type="button" id="tsBtn3" class="btn primary disabled" disabled>तीसरी बार जोड़ते ही तुरंत क्लिक करें</button>
+        <span id="ts3disp" class="timestamp-display"></span>
+      </div>
+
+      <!-- Splitter -->
       <div class="row">
         <select name="splitter" required>
           <option value="">Select Splitter</option>
-          <option>2 way</option>
-          <option>4 way</option>
-          <option>8 way</option>
-          <option>Link JC</option>
+          <option>2 way</option><option>4 way</option><option>8 way</option><option>Link JC</option>
         </select>
       </div>
-      <div class="form-step">Step 3 - जे सी और स्प्लिटर की फोटो पास से</div>
+
+      <!-- Photos -->
+      <div class="form-step">ड्रम नंबर और जे सी की फोटो</div>
+      <div class="row"><input type="file" name="photo1" accept="image/*" capture="environment" required /></div>
+      <div class="form-step">पोल और लोकेशन की फोटो थोड़ी दूर से</div>
+      <div class="row"><input type="file" name="photo2" accept="image/*" capture="environment" required /></div>
+
+      <!-- JC Name -->
+      <div class="row"><input type="text" name="jcname" required placeholder="Enter JC Name" /></div>
       <div class="row">
-        <input type="file" name="photo1" accept="image/*" capture="environment" required />
+        <select name="wire" required>
+          <option value="">Select Wire</option><option>1 Core</option><option>2 Core</option><option>4 Core</option><option>6 Core</option><option>12 Core</option><option>96 Core</option>
+        </select>
       </div>
-      <div class="form-step">Step 4 - पोल और लोकेशन की फोटो थोड़ी दूर से</div>
-      <div class="row">
-        <input type="file" name="photo2" accept="image/*" capture="environment" required />
-      </div>
-      <div class="form-step">Step 5 - लाइन के बारे में लिखें</div>
-      <div class="row">
-        <input type="text" name="jcname" required placeholder="Enter JC Name" />
-      </div>
-<div class="row">
-  <select name="wire" required>
-    <option value="">Select Wire</option>
-    <option>1 Core</option>
-    <option>2 Core</option>
-    <option>4 Core</option>
-    <option>6 Core</option>
-    <option>12 Core</option>
-    <option>96 Core</option>
-  </select>
-</div>
-<div class="row">
-  <input type="number" name="vacantcores" required placeholder="Enter Vacant Cores" />
-</div>
+      <div class="row"><input type="number" name="vacantcores" required placeholder="Enter Vacant Cores" /></div>
       <div class="row">
         <select name="wirecolor">
-          <option value="">Select Wire Color</option>
-          <option>Black</option>
-          <option>Orange</option>
-          <option>Other</option>
+          <option value="">Select fiber color</option><option>Black</option><option>Orange</option><option>Other</option>
         </select>
       </div>
-      <div class="row">
-        <input type="text" name="linename" placeholder="Line Name (Optional)" />
-      </div>
-      <div class="row">
-        <input type="text" name="drumno" placeholder="Drum No (Optional)" />
-      </div>
-      <div class="row">
-        <textarea name="remark" placeholder="Write remarks..."></textarea>
-      </div>
-      <div class="form-step">Step 6 - स्प्लिटर का इनपुट जोड़ने के बाद Tagging done क्लिक करें
-</div>
+      <div class="row"><input type="text" name="linename" placeholder="Line Name (Optional)" /></div>
+      <div class="row"><input type="text" name="drumno" placeholder="Drum No (Optional)" /></div>
+      <div class="row"><input type="text" name="remark" placeholder="Input power (मापें/नोट्स)" /></div>
+
       <div class="row actions">
-        <button type="submit" id="submitBtn" class="btn success" disabled>
-          Tagging done <span id="countdown"></span>
-        </button>
-        <button type="button" id="resetBtn" class="btn danger" onclick="resetTag()">Reset this tag"</button>
-        <br>
+        <button type="button" id="submitBtn" class="btn success" disabled>Submit to check users on this line</button>
         <span id="submitStatus" class="muted small-text"></span>
       </div>
     </form>
   </div>
-  <!-- Custom Reset Confirmation Modal -->
-  <div id="resetModal" class="modal-overlay">
+
+  <!-- User list modal -->
+  <div id="userListModal" class="modal-overlay">
     <div class="modal-box">
-      <p class="modal-message">⚠️ Are you sure you want to reset this tag?<br>All unsaved progress will be lost.</p>
-      <div class="modal-actions">
-        <button id="confirmResetBtn" class="btn danger">Yes, Reset</button>
-        <button id="cancelResetBtn" class="btn">Cancel</button>
+      <div id="userListStatus">
+        <span id="statusDot">O</span>
+        <span id="statusText">Fetching user list…</span>
+      </div>
+      <div id="userListContainer"><div class="muted small-text">Waiting…</div></div>
+      <div class="modal-actions" style="margin-top:12px; justify-content:flex-end;">
+        <button id="closeUserListBtn" class="btn">Close</button>
       </div>
     </div>
   </div>
-  <script>
-    const allowedEmails = ["shahzebahmad2024@gmail.com", "trustindeal.amanwiz@gmail.com", "alamshan761@gmail.com", "ainulkhan424@gmail.com"];
-    const scriptURL = "https://script.google.com/macros/s/AKfycbwMZoKlv8-WD-kwwURqjdTu-L9VW5IZd9Z1NB6_-FW_OCj_fmBYMOTio-vjI7eX-PxX/exec";
-    const clientID = "333245582834-m1u6kn51f7cscdkccsbcgfbav0mn5vm1.apps.googleusercontent.com";
-    let timerInterval;
-    let lastRemaining = null;
-    const COUNTDOWN_DURATION = 600; // seconds
-    const fieldsToSave = ['windowoption', 'locationLink', 'splitter', 'jcname', 'wire', 'vacantcores', 'wirecolor', 'linename', 'drumno', 'remark'];
 
-    window.onload = () => {
-      if (window.google && google.accounts && google.accounts.id) {
-        google.accounts.id.initialize({
-          client_id: clientID,
-          callback: handleCredentialResponse
-        });
-        google.accounts.id.renderButton(
-          document.getElementById("signinBtn"),
-          { theme: "outline", size: "large", type: "standard", shape: "pill" }
-        );
-      }
-      document.getElementById("dataForm").addEventListener("submit", onSubmit);
-      autoDetectLocation();
-    };
-    function parseJwt(token) {
-      try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c =>
-          '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-        ).join(''));
-        return JSON.parse(jsonPayload);
-      } catch {
-        return {};
-      }
-    }
+<script>
+/* ================== CONFIG ================== */
+const allowedEmails = ["shahzebahmad2024@gmail.com","trustindeal.amanwiz@gmail.com","alamshan761@gmail.com","ainulkhan424@gmail.com"];
+const scriptURL = "https://script.google.com/macros/s/AKfycbwMZoKlv8-WD-kwwURqjdTu-L9VW5IZd9Z1NB6_-FW_OCj_fmBYMOTio-vjI7eX-PxX/exec";
+const clientID = "333245582834-m1u6kn51f7cscdkccsbcgfbav0mn5vm1.apps.googleusercontent.com";
+const DISABLE_SECONDS = 3 * 60;
+const TIMER_UPDATE_INTERVAL = 3000;
+let timerInterval = null, timerDisplayInterval = null, timerRemaining = 0;
+let nextTimeout = null, countdownInterval = null;
+const fieldsToSave = ['windowoption','splitter','jcname','wire','vacantcores','wirecolor','linename','drumno','remark'];
+
+/* ========== INIT ========== */
+window.onload = () => {
+  if (window.google && google.accounts && google.accounts.id) {
+    google.accounts.id.initialize({ client_id: clientID, callback: handleCredentialResponse });
+    google.accounts.id.renderButton(document.getElementById("signinBtn"), { theme: "outline", size: "large", type: "standard", shape: "pill" });
+  }
+  document.getElementById("submitBtn").addEventListener("click", onSubmitClick);
+  document.getElementById("closeUserListBtn").addEventListener("click", closeUserListModal);
+  document.getElementById('dataForm').addEventListener('change', saveFormData);
+  document.querySelector('[name="photo1"]').addEventListener('change', savePhotoAndHighlight);
+  document.querySelector('[name="photo2"]').addEventListener('change', savePhotoAndHighlight);
+
+  const savedSession = JSON.parse(localStorage.getItem("userSession")||null);
+  const ONE_HOUR = 60*60*1000;
+  if (savedSession && (Date.now() - savedSession.timestamp < ONE_HOUR)) {
+    document.querySelector("input[name='email']").value = savedSession.email;
+    document.getElementById("signinCard").classList.add("hidden");
+    document.getElementById("formCard").classList.remove("hidden");
+    initializeForm();
+  }
+};
+
+/* ========== GOOGLE SIGN IN HELPERS ========== */
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g,'+').replace(/_/g,'/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c=>'%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    return JSON.parse(jsonPayload);
+  } catch { return {}; }
+}
 function handleCredentialResponse(response) {
   const payload = parseJwt(response.credential);
   const email = payload.email || "";
   if (allowedEmails.includes(email)) {
-    // save session for 1 hr
-    localStorage.setItem("userSession", JSON.stringify({
-      email: email,
-      timestamp: Date.now()
-    }));
+    localStorage.setItem("userSession", JSON.stringify({ email, timestamp: Date.now() }));
     document.querySelector('[name="email"]').value = email;
-    document.getElementById("whoami").innerHTML = `Fiber line marking`;
     document.getElementById("deniedMsg").classList.add("hidden");
     document.getElementById("signinCard").classList.add("hidden");
     document.getElementById("formCard").classList.remove("hidden");
     initializeForm();
   } else {
-    document.getElementById("deniedMsg").classList.remove("hidden");
+    document.getElementById("deniedMsg").style.display = "block";
   }
 }
-    function autoDetectLocation() {
-      if (!navigator.geolocation) {
-        document.getElementById("locationRow").classList.remove("hidden");
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-          document.querySelector("[name=locationLink]").value =
-            `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-        },
-        () => document.getElementById("locationRow").classList.remove("hidden"),
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    }
-    function compressImageToDataURL(file, maxKB = 200) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onerror = () => reject(new Error("Failed to read file"));
-        reader.onload = () => {
-          const img = new Image();
-          img.onerror = () => reject(new Error("Invalid image"));
-          img.onload = () => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            const scale = Math.min(1, Math.sqrt((maxKB * 1024) / (file.size || (img.width * img.height))));
-            canvas.width = Math.max(1, Math.round(img.width * scale));
-            canvas.height = Math.max(1, Math.round(img.height * scale));
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            let quality = 0.75;
-            let dataUrl = canvas.toDataURL("image/jpeg", quality);
-            while (dataUrl.length / 1024 > maxKB && quality > 0.2) {
-              quality -= 0.05;
-              dataUrl = canvas.toDataURL("image/jpeg", quality);
-            }
-            resolve(dataUrl);
-          };
-          img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    async function onSubmit(e) {
-      e.preventDefault();
-      const form = e.target;
-      const overlay = document.createElement("div");
-      overlay.className = "spinner-overlay";
-      overlay.innerHTML = '<div class="spinner"></div><div class="spinner-text">Submitting...</div>';
-      document.body.appendChild(overlay);
-      const p1 = form.photo1.files[0];
-      const p2 = form.photo2.files[0];
-      if (!p1 || !p2) {
-        document.querySelector(".spinner-overlay")?.remove();
-        showToast("❌ Both JC Photo and Area Photo are required", "error");
-        return;
-      }
-      let photos;
-      try {
-        photos = [await compressImageToDataURL(p1, 200), await compressImageToDataURL(p2, 200)];
-      } catch (err) {
-        document.querySelector(".spinner-overlay")?.remove();
-        showToast("❌ Image processing failed: " + err.message, "error");
-        return;
-      }
-      const payload = {
-        email: form.email.value,
-        locationLink: form.locationLink.value,
-        photos,
-        jcname: form.jcname.value,
-        splitter: form.splitter.value,
-        wire: form.wire.value,
-        wirecolor: form.wirecolor.value,
-        linename: form.linename.value,
-        drumno: form.drumno.value,
-        remark: form.remark.value,
-        vacantcores: form.vacantcores.value,
-        windowoption: form.windowoption.value,
-        startTime: form.startTime.value
+
+/* ========== IMAGE COMPRESSION ========== */
+function compressImageToDataURL(file, maxKB = 200) {
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onerror = ()=>reject(new Error("Failed to read file"));
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=>reject(new Error("Invalid image"));
+      img.onload = ()=>{
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const scale = Math.min(1, Math.sqrt((maxKB*1024)/(file.size || (img.width*img.height))));
+        canvas.width = Math.max(1, Math.round(img.width*scale));
+        canvas.height = Math.max(1, Math.round(img.height*scale));
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        let quality = 0.75;
+        let dataUrl = canvas.toDataURL("image/jpeg", quality);
+        while (dataUrl.length/1024 > maxKB && quality > 0.2) { quality -= 0.05; dataUrl = canvas.toDataURL("image/jpeg", quality); }
+        resolve(dataUrl);
       };
-      fetch(scriptURL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      })
-      .then(r => r.json())
-      .then(resp => {
-        document.querySelector(".spinner-overlay")?.remove();
-        if (resp.status === "success") {
-          showToast("✅ Tagging submitted successfully!", "success");
-          clearStoredData();
-          setTimeout(() => window.location.reload(), 2000);
-        } else {
-          showToast("❌ " + (resp.message || "Server error"), "error");
-        }
-      })
-      .catch(err => {
-        document.querySelector(".spinner-overlay")?.remove();
-        showToast("❌ Network error: " + err, "error");
-      });
-    }
-    function showToast(text, type) {
-      const toast = document.createElement("div");
-      toast.className = `toast ${type}`;
-      toast.textContent = text;
-      document.body.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add("fade-out");
-        setTimeout(() => toast.remove(), 500);
-      }, 3000);
-    }
-    function startTagging() {
-      const submitBtn = document.getElementById('submitBtn');
-      const startTimeField = document.querySelector('[name="startTime"]');
-      const countdownEl = document.getElementById('countdown');
-      const startBtn = document.getElementById('startTaggingBtn');
-      const now = Date.now();
-      localStorage.setItem('startTime', now);
-      startTimeField.value = new Date(now).toISOString();
-      startBtn.disabled = true;
-      lastRemaining = null;
-      updateCountdown();
-      showToast("🕒 Please wait 600 seconds before submitting.", "info");
-    }
-    function updateCountdown() {
-      const start = parseInt(localStorage.getItem('startTime') || 0);
-      const submitBtn = document.getElementById('submitBtn');
-      const countdownEl = document.getElementById('countdown');
-      const startBtn = document.getElementById('startTaggingBtn');
-      if (start === 0) return;
-      const elapsed = Date.now() - start;
-      let remaining = COUNTDOWN_DURATION - Math.floor(elapsed / 1000);
-      if (remaining < 0) remaining = 0;
-      countdownEl.textContent = remaining > 0 ? `(${remaining}s)` : '';
-      submitBtn.disabled = remaining > 0;
-      startBtn.disabled = true;
-      if (remaining === 0 && lastRemaining > 0) {
-        showToast("✅ You can now submit the form.", "success");
-      }
-      lastRemaining = remaining;
-    }
-    async function loadFormData() {
-      const data = JSON.parse(localStorage.getItem('formData')) || {};
-      const form = document.getElementById('dataForm');
-      fieldsToSave.forEach(field => {
-        if (data[field]) {
-          form[field].value = data[field];
-        }
-      });
-      const start = localStorage.getItem('startTime');
-      if (start) {
-        form.startTime.value = new Date(parseInt(start)).toISOString();
-        document.getElementById('startTaggingBtn').disabled = true;
-      }
-      await loadPhoto('photo1');
-      await loadPhoto('photo2');
-    }
-    function saveFormData() {
-      const form = document.getElementById('dataForm');
-      const data = {};
-      fieldsToSave.forEach(field => {
-        data[field] = form[field].value;
-      });
-      localStorage.setItem('formData', JSON.stringify(data));
-    }
-    async function loadPhoto(name) {
-      const base64 = localStorage.getItem(name);
-      if (base64) {
-        try {
-          const response = await fetch(base64);
-          const blob = await response.blob();
-          const file = new File([blob], `${name}.jpg`, {type: 'image/jpeg'});
-          const input = document.querySelector(`[name="${name}"]`);
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          input.files = dt.files;
-        } catch (err) {
-          console.error('Failed to load photo:', err);
-        }
-      }
-    }
-    function savePhoto(e) {
-      const input = e.target;
-      const file = input.files[0];
-      if (file) {
-        compressImageToDataURL(file, 200).then(dataUrl => {
-          localStorage.setItem(input.name, dataUrl);
-        }).catch(err => {
-          console.error('Failed to save photo:', err);
-        });
-      }
-    }
-    function clearStoredData() {
-      localStorage.removeItem('formData');
-      localStorage.removeItem('startTime');
-      localStorage.removeItem('photo1');
-      localStorage.removeItem('photo2');
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ========== SUBMIT FLOW ========== */
+async function onSubmitClick() {
+  const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn.dataset.mode === 'show') { 
+    window.location.href = "https://script.google.com/macros/s/AKfycbyU0-_cPkzR8o3NH7g-JiAd1ZgtGUq-kqK2i4LeIt7hEGbvPeP4xt-y41iUhmojtYSKmQ/exec";
+    return; }
+
+  const t1 = localStorage.getItem('ts1'), t2 = localStorage.getItem('ts2'), t3 = localStorage.getItem('ts3');
+  if (!t1 || !t2 || !t3) { showToast("कृपया तीनों टाइमस्टैम्प पहले कैप्चर करें।", "error"); return; }
+  const form = document.getElementById('dataForm');
+  const p1 = form.photo1.files[0], p2 = form.photo2.files[0];
+  if (!p1 || !p2) { showToast("Both JC Photo and Area Photo are required", "error"); return; }
+
+  const overlay = document.createElement("div"); overlay.className="spinner-overlay"; overlay.innerHTML = '<div class="spinner"></div>';
+  document.body.appendChild(overlay);
+  let photos;
+  try { photos = [await compressImageToDataURL(p1,200), await compressImageToDataURL(p2,200)]; }
+  catch(err){ document.querySelector(".spinner-overlay")?.remove(); showToast("Image processing failed: "+err.message, "error"); return; }
+
+  const payload = {
+    action: "submit",
+    email: form.email.value,
+    locationLink: form.locationLink ? form.locationLink.value : "",
+    photos,
+    jcname: form.jcname.value,
+    splitter: form.splitter.value,
+    wire: form.wire.value,
+    wirecolor: form.wirecolor.value,
+    linename: form.linename.value,
+    drumno: form.drumno.value,
+    remark: form.remark.value,
+    vacantcores: form.vacantcores.value,
+    windowoption: form.windowoption.value,
+    ts1: localStorage.getItem('ts1') || "",
+    ts2: localStorage.getItem('ts2') || "",
+    ts3: localStorage.getItem('ts3') || ""
+  };
+  try {
+    const r = await fetch(scriptURL, { method: "POST", headers: { "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+    const resp = await r.json();
+    document.querySelector(".spinner-overlay")?.remove();
+    if (resp.status === "success") {
+      showToast("Data submitted. You can view user list after the wait period.", "success");
+      startDisableTimer(DISABLE_SECONDS);
+      localStorage.removeItem('ts1'); localStorage.removeItem('ts2'); localStorage.removeItem('ts3');
+      document.getElementById('ts1disp').textContent=''; document.getElementById('ts2disp').textContent=''; document.getElementById('ts3disp').textContent='';
+      resetTimestampButtons();
+    } else showToast("" + (resp.message||"Server error"), "error");
+  } catch(err) {
+    document.querySelector(".spinner-overlay")?.remove();
+    showToast("Network error: "+err, "error");
+  }
+}
+
+/* ===== Submit disable timer ===== */
+function startDisableTimer(seconds) {
+  const submitBtn = document.getElementById('submitBtn');
+  submitBtn.disabled = true;
+  submitBtn.dataset.mode = 'submit';
+  timerRemaining = seconds;
+  clearInterval(timerInterval); clearInterval(timerDisplayInterval);
+  timerInterval = setInterval(()=> {
+    timerRemaining = Math.max(0, timerRemaining - 1);
+    if (timerRemaining === 0) {
       clearInterval(timerInterval);
-      document.getElementById('startTaggingBtn').disabled = false;
+      submitBtn.disabled = false;
+      submitBtn.dataset.mode = 'show';
+      submitBtn.textContent = 'Show user list';
+      showToast("You can now view the user list.", "success");
     }
-    function initializeForm() {
-      document.getElementById("whoami").innerHTML = `Fiber line marking`;
-      loadFormData();
-      fieldsToSave.forEach(field => {
-        const elem = document.querySelector(`[name="${field}"]`);
-        elem.addEventListener('change', saveFormData);
-        elem.addEventListener('input', saveFormData);
-      });
-      document.querySelector('[name="photo1"]').addEventListener('change', savePhoto);
-      document.querySelector('[name="photo2"]').addEventListener('change', savePhoto);
-      timerInterval = setInterval(updateCountdown, 1000);
-      updateCountdown(); // initial call
-    }
-    function resetTag() {
-      // Show modal instead of confirm box
-      document.getElementById("resetModal").style.display = "flex";
-      // Handle confirm
-      document.getElementById("confirmResetBtn").onclick = function () {
-        const email = localStorage.getItem("userSession"); // preserve session
-        localStorage.removeItem('formData');
-        localStorage.removeItem('startTime');
-        localStorage.removeItem('photo1');
-        localStorage.removeItem('photo2');
-        clearInterval(timerInterval);
-        document.getElementById('dataForm').reset();
-        document.getElementById('startTaggingBtn').disabled = false;
-        document.getElementById('submitBtn').disabled = true;
-        document.getElementById('countdown').textContent = '';
-        document.getElementById("resetModal").style.display = "none"; // close modal
-        showToast("🔄 Tag has been reset. You can start fresh.", "info");
-      };
-      // Handle cancel
-      document.getElementById("cancelResetBtn").onclick = function () {
-        document.getElementById("resetModal").style.display = "none";
-      };
-    }
-  </script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const loginCard = document.getElementById("signinCard");
-  const formCard = document.getElementById("formCard");
-  const emailInput = document.querySelector("input[name='email']");
-  const ONE_HOUR = 60 * 60 * 1000; // 1 hour in milliseconds
-  // Check saved email in localStorage
-  const savedSession = JSON.parse(localStorage.getItem("userSession"));
-  if (savedSession) {
-    const now = Date.now();
-    if (now - savedSession.timestamp < ONE_HOUR) {
-      // Session is still valid
-      emailInput.value = savedSession.email; // auto-fill email
-      loginCard.classList.add("hidden");
-      formCard.classList.remove("hidden");
-      initializeForm();
-      console.log("Auto-login with saved email:", savedSession.email);
-    } else {
-      // Session expired
-      localStorage.removeItem("userSession");
-    }
-  }
-
-// Function to mark selected image input
-function handleFileSelectForHighlight(e) {
-  const input = e.target;
-  if (input.files && input.files.length > 0) {
-    input.classList.add("selected");  // green highlight
-  } else {
-    input.classList.remove("selected");
+  }, 1000);
+  timerDisplayInterval = setInterval(updateSubmitTimerDisplay, TIMER_UPDATE_INTERVAL);
+  updateSubmitTimerDisplay();
+}
+function updateSubmitTimerDisplay() {
+  const submitBtn = document.getElementById('submitBtn');
+  if (timerRemaining > 0) {
+    const mm = Math.floor(timerRemaining/60), ss = timerRemaining%60;
+    submitBtn.textContent = `Submit to check users on this line (${mm}m ${ss}s)`;
   }
 }
 
-// Apply listeners on photo inputs
-document.querySelector('[name="photo1"]').addEventListener('change', handleFileSelectForHighlight);
-document.querySelector('[name="photo2"]').addEventListener('change', handleFileSelectForHighlight);
+/* ========== TIMESTAMP SEQUENCE + 10‑SEC COUNTDOWN ========== */
+let countdownSeconds = 0;
+function startCountdown(displayId, nextBtnId) {
+  countdownSeconds = 25;
+  const el = document.getElementById(displayId);
+  el.classList.remove('hidden');
+  el.textContent = `${countdownSeconds}s`;
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    countdownSeconds--;
+    if (countdownSeconds <= 0) {
+      clearInterval(countdownInterval);
+      el.classList.add('hidden');
+      const nextBtn = document.getElementById(nextBtnId);
+      nextBtn.classList.remove('disabled');
+      nextBtn.disabled = false;
+    } else {
+      el.textContent = `${countdownSeconds}s`;
+    }
+  }, 1000);
+}
 
+function captureTimestamp(which) {
+  const btn = document.getElementById(`tsBtn${which}`);
+  if (btn.classList.contains('disabled') || btn.disabled) return;
 
+  const now = new Date();
+  const iso = now.toISOString();
+  const localDisplay = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }).replace(',', '');
+
+  localStorage.setItem(`ts${which}`, iso);
+  document.getElementById(`ts${which}disp`).textContent = localDisplay;
+  showToast(`Timestamp ${which} captured`, "info");
+
+  btn.classList.add('disabled');
+  btn.disabled = true;
+
+  if (which === 1) {
+    startCountdown('timer1', 'tsBtn2');
+  } else if (which === 2) {
+    startCountdown('timer2', 'tsBtn3');
+  } else if (which === 3) {
+    document.getElementById('submitBtn').disabled = false;
+  }
+}
+
+/* Reset timestamp button states */
+function resetTimestampButtons() {
+  clearTimeout(nextTimeout);
+  clearInterval(countdownInterval);
+  ['timer1','timer2'].forEach(id=>document.getElementById(id).classList.add('hidden'));
+  ['1','2','3'].forEach(n => {
+    const btn = document.getElementById(`tsBtn${n}`);
+    if (n === '1') {
+      btn.classList.remove('disabled');
+      btn.disabled = false;
+    } else {
+      btn.classList.add('disabled');
+      btn.disabled = true;
+    }
+  });
+  document.getElementById('submitBtn').disabled = true;
+}
+
+/* ========== UI helpers ========== */
+function showToast(text, type="default") {
+  const toast = document.createElement("div"); toast.className = `toast ${type}`; toast.textContent = text;
+  document.body.appendChild(toast);
+  setTimeout(()=>{ toast.style.opacity='0'; setTimeout(()=>toast.remove(),600); },3000);
+}
+
+/* ========== Local form save/load ========== */
+function saveFormData() {
+  const data = {};
+  fieldsToSave.forEach(field => { const el = document.querySelector(`[name="${field}"]`); if (el) data[field] = el.value; });
+  localStorage.setItem('formData', JSON.stringify(data));
+}
+async function loadFormData() {
+  const data = JSON.parse(localStorage.getItem('formData')||"{}");
+  fieldsToSave.forEach(field => { const el = document.querySelector(`[name="${field}"]`); if (el && data[field]) el.value = data[field]; });
+  await loadPhoto('photo1'); await loadPhoto('photo2');
+
+  // restore timestamps & button states
+  ['1','2','3'].forEach(n => {
+    const iso = localStorage.getItem(`ts${n}`);
+    if (iso) {
+      const d = new Date(iso);
+      const disp = d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }).replace(',', '');
+      document.getElementById(`ts${n}disp`).textContent = disp;
+    }
+  });
+
+  const has1 = !!localStorage.getItem('ts1');
+  const has2 = !!localStorage.getItem('ts2');
+  const has3 = !!localStorage.getItem('ts3');
+
+  if (has1 && has2 && has3) {
+    ['1','2','3'].forEach(n=>{
+      const b = document.getElementById(`tsBtn${n}`);
+      b.classList.add('disabled');
+      b.disabled = true;
+    });
+    document.getElementById('submitBtn').disabled = false;
+  } else {
+    resetTimestampButtons();
+    if (has1) {
+      const b1 = document.getElementById('tsBtn1');
+      b1.classList.add('disabled');
+      b1.disabled = true;
+      const b2 = document.getElementById('tsBtn2');
+      b2.classList.remove('disabled');
+      b2.disabled = false;
+    }
+    if (has2) {
+      const b2 = document.getElementById('tsBtn2');
+      b2.classList.add('disabled');
+      b2.disabled = true;
+      const b3 = document.getElementById('tsBtn3');
+      b3.classList.remove('disabled');
+      b3.disabled = false;
+    }
+    if (has3) {
+      const b3 = document.getElementById('tsBtn3');
+      b3.classList.add('disabled');
+      b3.disabled = true;
+    }
+  }
+}
+async function loadPhoto(name) {
+  const base64 = localStorage.getItem(name);
+  if (!base64) return;
+  try {
+    const response = await fetch(base64); const blob = await response.blob();
+    const file = new File([blob], `${name}.jpg`, {type:'image/jpeg'});
+    const input = document.querySelector(`[name="${name}"]`);
+    const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files; input.classList.add('selected');
+  } catch(err){ console.error('Failed to load photo:',err); }
+}
+function savePhotoAndHighlight(e) {
+  const input = e.target; const file = input.files[0];
+  if (file) { compressImageToDataURL(file,200).then(dataUrl=>{ localStorage.setItem(input.name, dataUrl); input.classList.add('selected'); }).catch(err=>console.error(err)); }
+  else input.classList.remove('selected');
+}
+
+/* ========== INITIALIZE FORM ========== */
+function initializeForm() {
+  document.getElementById("whoami").innerHTML = `Check users on this line`;
+  loadFormData();
+  fieldsToSave.forEach(field => { const el = document.querySelector(`[name="${field}"]`); if (el){ el.addEventListener('change', saveFormData); el.addEventListener('input', saveFormData); }});
+  autoDetectLocation();
+
+  document.getElementById('tsBtn1').addEventListener('click', () => captureTimestamp(1));
+  document.getElementById('tsBtn2').addEventListener('click', () => captureTimestamp(2));
+  document.getElementById('tsBtn3').addEventListener('click', () => captureTimestamp(3));
+
+  resetTimestampButtons();          // initial state
+}
+
+function autoDetectLocation() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    let loc = document.querySelector("[name=locationLink]");
+    if (!loc) { loc = document.createElement('input'); loc.type='hidden'; loc.name='locationLink'; document.getElementById('dataForm').appendChild(loc); }
+    loc.value = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  }, ()=>{}, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
+}
+
+/* ========== USER LIST MODAL ========== */
+function openUserListModal() {
+  document.getElementById('userListContainer').innerHTML = '<div class="muted small-text">Fetching user list…</div>';
+  document.getElementById('userListModal').style.display = 'flex';
+  fetchUserList();
+}
+function closeUserListModal() { document.getElementById('userListModal').style.display = 'none'; }
+async function fetchUserList() {
+  const dot = document.getElementById('statusDot'), text = document.getElementById('statusText');
+  dot.textContent = "O"; dot.classList.add("blink"); text.textContent = "Fetching user list…";
+  const email = document.querySelector('[name="email"]').value;
+  const windowoption = document.querySelector('[name="windowoption"]').value;
+  if (!windowoption) {
+    dot.classList.remove("blink"); dot.textContent = "R"; text.textContent = "Select window";
+    document.getElementById('userListContainer').innerHTML = '<div class="muted small-text">Please select window first.</div>';
+    return;
+  }
+  const payload = { action:'get_users', windowoption, email };
+  try {
+    const r = await fetch(scriptURL, { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify(payload) });
+    const resp = await r.json();
+    dot.classList.remove("blink");
+    if (resp.status === 'success' && Array.isArray(resp.users) && resp.users.length === 0) {
+      dot.textContent = "Y"; text.textContent = "No users found";
+      document.getElementById('userListContainer').innerHTML = '<div style="margin-top:12px;color:#b91c1c;font-weight:bold;">VBO could not find any user on this line !</div>';
+      return;
+    }
+    if (resp.status === "success" && Array.isArray(resp.users)) {
+      dot.textContent = "G"; text.textContent = "User list loaded";
+      renderUserTable(resp.users); return;
+    }
+    dot.textContent = "R"; text.textContent = "Server message";
+    document.getElementById('userListContainer').innerHTML = `<div class="muted small-text">${resp.message || 'Unknown server message'}</div>`;
+  } catch(err) {
+    dot.classList.remove("blink"); dot.textContent = "P"; text.textContent = "Network error";
+    document.getElementById('userListContainer').innerHTML = `<div class="muted small-text">Network error: ${err}</div>`;
+  }
+}
+function renderUserTable(users) {
+  const email = document.querySelector('[name="email"]').value;
   
-});
+  let html = `<div style="font-size:12px;color:#374151;margin-bottom:8px;">
+                Marked by: <b>${email}</b>
+              </div>`;
+
+  if (!users.length) {
+    document.getElementById('userListContainer').innerHTML =
+      html + '<div class="muted small-text">No users found.</div>';
+    return;
+  }
+
+  html += `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <thead>
+              <tr>
+                <th>Sn</th>
+                <th>User Name</th>
+                <th>Contact</th>
+                <th>Area</th>
+                <th>Power</th>
+              </tr>
+            </thead><tbody>`;
+
+  users.forEach((u, idx) => {
+    html += `<tr>
+               <td>${idx + 1}</td>
+               <td>${escapeHtml(u.username)}</td>
+               <td>${escapeHtml(u.contact)}</td>
+               <td>${escapeHtml(u.area)}</td>
+               <td>${escapeHtml(u.power)}</td>
+             </tr>`;
+  });
+
+  html += "</tbody></table>";
+
+  document.getElementById('userListContainer').innerHTML = html;
+}
+
+function escapeHtml(s){ if(!s) return ''; return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 </script>
 </body>
 </html>
-</xaiArtifact>
