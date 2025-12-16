@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>All Employee Attendance System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      min-height: 100vh;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .container {
+      max-width: 1200px;
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+    .header {
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 20px;
+    }
+    .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+    .header p { font-size: 16px; color: #666; font-weight: 600; }
+    .date-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .date-group label {
+      flex: 1 0 auto;
+      font-weight: 600;
+      color: #4a5568;
+      margin-bottom: 0;
+      align-self: center;
+    }
+    .date-group input[type="date"] {
+      flex: 1;
+      margin: 0;
+      padding: 8px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .filter-group {
+      margin-bottom: 15px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .checkbox-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      flex: 1 0 auto;
+    }
+    .select-all {
+      font-weight: 600;
+      color: #667eea;
+      cursor: pointer;
+      text-decoration: underline;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    button {
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s;
+      color: white;
+      background: #48bb78;
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background: #38a169;
+      transform: translateY(-1px);
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    #attendanceTable {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #attendanceTable th, #attendanceTable td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      text-align: left;
+      font-size: 13px;
+    }
+    #summaryTable th, #summaryTable td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 13px;
+}
+#summaryTable th {
+  background-color: #f2f2f2;
+}
+
+    #attendanceTable th {
+      background-color: #f2f2f2;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    button.edit-btn {
+      background: none;
+      color: #667eea;
+      width: auto;
+      padding: 0;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 0;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 15px;
+      border: 1px solid #888;
+      width: 95%;
+      max-width: 800px;
+      border-radius: 10px;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover {
+      color: black;
+    }
+    #editTable, #addTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    #editTable th, #editTable td, #addTable th, #addTable td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      font-size: 13px;
+    }
+    #editTable input, #addTable input, #addTable select, #addTable textarea {
+      width: 100%;
+      border: none;
+      padding: 4px;
+      font-size: 13px;
+      background: transparent;
+    }
+    #editTable input:focus, #addTable input:focus, #addTable select:focus, #addTable textarea:focus {
+      outline: 2px solid #667eea;
+      background: #f0f7ff;
+    }
+    #toast {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #48bb78;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      z-index: 2000;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .loading {
+      text-align: center;
+      padding: 30px;
+      color: #666;
+      font-style: italic;
+      font-size: 14px;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 15px; }
+      .date-group { flex-direction: column; gap: 5px; }
+      .date-group input { margin: 0; }
+      .checkbox-container { gap: 6px; flex-direction: column; }
+      .checkbox-item { font-size: 13px; }
+      #attendanceTable th, #attendanceTable td { font-size: 12px; padding: 5px; }
+      button { font-size: 15px; padding: 10px; }
+    }
+
+    #addRecordBtn {
+  display: none !important;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>All Attendance</h1>
+      <p>Merotra Cable Network</p>
+    </div>
+
+    <button id="addRecordBtn">Add Record</button>
+
+    <div class="date-group">
+      <label for="startDate">Start:</label>
+      <input type="date" id="startDate">
+      <label for="endDate">End:</label>
+      <input type="date" id="endDate">
+    </div>
+
+    <div class="filter-group">
+      <label>Select Emails:</label>
+      <div class="checkbox-container" id="emailCheckboxes"></div>
+      <div>
+        <span class="select-all" id="selectAllEmails">Select All</span> | 
+        <span class="select-all" id="deselectAllEmails">Deselect All</span>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label>Select Attendance Types:</label>
+      <div class="checkbox-container" id="attendanceCheckboxes">
+        <div class="checkbox-item">
+          <input type="checkbox" id="attAll" value="All" checked>
+          <label for="attAll">All</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="attFull" value="Full day">
+          <label for="attFull">Full day</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="attLate" value="Late">
+          <label for="attLate">Late</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="attHalf" value="Half day">
+          <label for="attHalf">Half day</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="attOff" value="Off">
+          <label for="attOff">Off</label>
+        </div>
+        <div class="checkbox-item">
+          <input type="checkbox" id="attIncomplete" value="Incomplete attendance">
+          <label for="attIncomplete">Incomplete</label>
+        </div>
+      </div>
+      <div>
+        <span class="select-all" id="selectAllAtt">Select All</span> | 
+        <span class="select-all" id="deselectAllAtt">Deselect All</span>
+      </div>
+    </div>
+
+    <div id="loadingMessage" class="loading">Loading attendance data...</div>
+    <!-- SUMMARY TABLE -->
+<div class="table-wrapper" style="margin-top:20px;">
+  <h3 style="margin-bottom:10px; color:#667eea;">Summary for Payroll</h3>
+  <table id="summaryTable" style="width:100%; border-collapse: collapse; display:none;">
+    <thead>
+      <tr>
+<th>Employee</th>
+<th>Full Days</th>
+<th>Half Days</th>
+<th>Late Days</th>
+<th>Incomplete</th>
+<th>Off Days</th>
+<th>Total Bike Running</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<h3 style="margin:15px 0; color:#667eea;">Day wise attendance</h3>
+    <div class="table-wrapper">
+      <table id="attendanceTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Edit</th>
+            <th>Sr.</th>
+            <th>Date</th>
+            <th>Email</th>
+            <th>Duty Start</th>
+            <th>Lunch Start</th>
+            <th>Lunch Done</th>
+            <th>Duty Off</th>
+            <th>Attendance</th>
+            <th>Bike Running</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close">x</span>
+      <h2>Edit Attendance: <span id="editDate"></span> - <span id="editEmail"></span></h2>
+      <table id="editTable">
+        <thead>
+          <tr>
+            <th>Row #</th>
+            <th>Timestamp</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Remarks</th>
+            <th>Selfie URL</th>
+            <th>Bike URL</th>
+            <th>Location</th>
+            <th>Verification</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Add Modal -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+      <span class="close">x</span>
+      <h2>Add New Record</h2>
+      <label for="addName">Name (Email):</label>
+      <input type="text" id="addName" placeholder="Enter email">
+      <label for="addStatus">Status:</label>
+      <select id="addStatus">
+        <option value="Duty start">Duty start</option>
+        <option value="Lunch start">Lunch start</option>
+        <option value="Lunch done">Lunch done</option>
+        <option value="Duty off">Duty off</option>
+      </select>
+      <label for="addTimestamp">Timestamp (M/d/yyyy H:mm:ss):</label>
+      <input type="text" id="addTimestamp" placeholder="e.g., 10/29/2024 10:00:00">
+      <label for="addRemarks">Remarks:</label>
+      <textarea id="addRemarks" placeholder="Remarks"></textarea>
+      <label for="addSelfieUrl">Selfie URL:</label>
+      <input type="text" id="addSelfieUrl" placeholder="Selfie URL">
+      <label for="addBikeUrl">Bike URL:</label>
+      <input type="text" id="addBikeUrl" placeholder="Bike URL">
+      <label for="addLocation">Location:</label>
+      <input type="text" id="addLocation" placeholder="Location">
+      <label for="addVerification">Verification Message:</label>
+      <input type="text" id="addVerification" placeholder="Verification Message">
+      <button id="saveAddBtn">Save</button>
+    </div>
+  </div>
+
+  <div id="toast">Attendance modified!</div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylgOCok7wb4JizI_xWTvuc82Up_eAObDY0txfjf1-O5Mla-Qg3vU1AdmZxlWQG_g9v1A/exec";
+    let allData = [];
+    let uniqueEmails = new Set();
+
+    const elements = {
+      addRecordBtn: document.getElementById('addRecordBtn'),
+      addModal: document.getElementById('addModal'),
+      addClose: document.querySelector('#addModal .close'),
+      addName: document.getElementById('addName'),
+      addStatus: document.getElementById('addStatus'),
+      addTimestamp: document.getElementById('addTimestamp'),
+      addRemarks: document.getElementById('addRemarks'),
+      addSelfieUrl: document.getElementById('addSelfieUrl'),
+      addBikeUrl: document.getElementById('addBikeUrl'),
+      addLocation: document.getElementById('addLocation'),
+      addVerification: document.getElementById('addVerification'),
+      saveAddBtn: document.getElementById('saveAddBtn'),
+      startDate: document.getElementById('startDate'),
+      endDate: document.getElementById('endDate'),
+      emailCheckboxes: document.getElementById('emailCheckboxes'),
+      attendanceCheckboxes: document.getElementById('attendanceCheckboxes'),
+      selectAllEmails: document.getElementById('selectAllEmails'),
+      deselectAllEmails: document.getElementById('deselectAllEmails'),
+      selectAllAtt: document.getElementById('selectAllAtt'),
+      deselectAllAtt: document.getElementById('deselectAllAtt'),
+      loadingMessage: document.getElementById('loadingMessage'),
+      attendanceTable: document.getElementById('attendanceTable'),
+      tbody: document.getElementById('attendanceTable').querySelector('tbody'),
+      editModal: document.getElementById('editModal'),
+      editClose: document.querySelector('#editModal .close'),
+      editDate: document.getElementById('editDate'),
+      editEmail: document.getElementById('editEmail'),
+      editTbody: document.getElementById('editTable').querySelector('tbody'),
+      toast: document.getElementById('toast')
+    };
+
+    // Close modals
+    elements.editClose.onclick = () => { elements.editModal.style.display = 'none'; };
+    elements.addClose.onclick = () => { elements.addModal.style.display = 'none'; };
+    window.onclick = (e) => {
+      if (e.target === elements.editModal) elements.editModal.style.display = 'none';
+      if (e.target === elements.addModal) elements.addModal.style.display = 'none';
+    };
+
+    // Add record button
+    elements.addRecordBtn.onclick = () => {
+      elements.addModal.style.display = 'flex';
+    };
+
+    // Save new record
+    elements.saveAddBtn.onclick = async () => {
+      const payload = {
+        name: elements.addName.value.trim(),
+        status: elements.addStatus.value,
+        timestamp: elements.addTimestamp.value.trim(),
+        remarks: elements.addRemarks.value.trim() || "N/A",
+        selfieUrl: elements.addSelfieUrl.value.trim() || "N/A",
+        bikeUrl: elements.addBikeUrl.value.trim() || "N/A",
+        location: elements.addLocation.value.trim() || "N/A",
+        verificationMessage: elements.addVerification.value.trim() || "N/A"
+      };
+
+      if (!payload.name || !payload.status || !payload.timestamp) {
+        alert('Name, Status, and Timestamp are required.');
+        return;
+      }
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        showToast();
+        elements.addModal.style.display = 'none';
+        await fetchData();
+        renderTable();
+      } catch (err) {
+        console.error('Add failed:', err);
+        alert('Failed to add record.');
+      }
+    };
+
+    // Select All / Deselect All for Emails
+    elements.selectAllEmails.onclick = () => {
+      document.querySelectorAll('#emailCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = true);
+      renderTable();
+    };
+    elements.deselectAllEmails.onclick = () => {
+      document.querySelectorAll('#emailCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+      renderTable();
+    };
+
+    // Select All / Deselect All for Attendance Types
+    elements.selectAllAtt.onclick = () => {
+      document.querySelectorAll('#attendanceCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = true);
+      renderTable();
+    };
+    elements.deselectAllAtt.onclick = () => {
+      document.querySelectorAll('#attendanceCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+      renderTable();
+    };
+
+    // Show toast
+    function showToast() {
+      elements.toast.style.display = 'block';
+      setTimeout(() => elements.toast.style.display = 'none', 3000);
+    }
+
+    // Format timestamp exactly as in Google Sheets
+    function formatTimestamp(tsStr) {
+      const ts = new Date(tsStr);
+      const month = ts.getMonth() + 1;
+      const day = ts.getDate();
+      const year = ts.getFullYear();
+      const hours = ts.getHours();
+      const minutes = ts.getMinutes();
+      const seconds = ts.getSeconds();
+      return `${month}/${day}/${year} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    // Fetch all data
+    async function fetchData() {
+      try {
+        elements.loadingMessage.style.display = 'block';
+        elements.attendanceTable.style.display = 'none';
+
+        const response = await fetch(`${SCRIPT_URL}?action=getAllAttendance`);
+        allData = await response.json();
+
+        // Extract unique emails, remove blank
+        uniqueEmails = new Set();
+        allData.forEach(row => {
+          const email = row[1].trim();
+          if (email) uniqueEmails.add(email);
+        });
+
+        // Populate email checkboxes
+        elements.emailCheckboxes.innerHTML = '';
+        Array.from(uniqueEmails).sort().forEach(email => {
+          const safeId = email.replace(/[^a-zA-Z0-9]/g, '_');
+          const div = document.createElement('div');
+          div.className = 'checkbox-item';
+          div.innerHTML = `
+            <input type="checkbox" id="email_${safeId}" value="${email}" checked>
+            <label for="email_${safeId}">${email}</label>
+          `;
+          elements.emailCheckboxes.appendChild(div);
+        });
+
+        // Add event listeners
+        document.querySelectorAll('#emailCheckboxes input').forEach(cb => cb.addEventListener('change', renderTable));
+        document.querySelectorAll('#attendanceCheckboxes input').forEach(cb => cb.addEventListener('change', renderTable));
+
+        renderTable();
+      } catch (err) {
+        console.error('Error:', err);
+        elements.loadingMessage.textContent = 'Failed to load data. Please try again.';
+      }
+    }
+
+    // Render table
+    function renderTable() {
+      const startStr = elements.startDate.value;
+      const endStr = elements.endDate.value;
+      if (!startStr || !endStr) return;
+
+      const startDate = new Date(startStr + 'T00:00:00');
+      const endDate = new Date(endStr + 'T23:59:59');
+      if (startDate > endDate) return;
+
+      const selectedEmails = Array.from(document.querySelectorAll('#emailCheckboxes input:checked'))
+        .map(cb => cb.value);
+      if (selectedEmails.length === 0) {
+        elements.tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#999;">No employees selected.</td></tr>';
+        elements.attendanceTable.style.display = 'table';
+        elements.loadingMessage.style.display = 'none';
+        return;
+      }
+
+      const selectedAttTypes = Array.from(document.querySelectorAll('#attendanceCheckboxes input:checked'))
+        .map(cb => cb.value);
+      const includeAllAtt = selectedAttTypes.includes('All') || selectedAttTypes.length === 0;
+
+      // Group data by email and date
+      const groupsByEmail = new Map();
+      allData.forEach(row => {
+        const [tsStr, email, status, remarks, selfie, bike, loc, verif, rowIndex] = row;
+        const ts = new Date(tsStr);
+        if (ts < startDate || ts > endDate) return;
+        const dateKey = ts.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+        if (!groupsByEmail.has(email)) groupsByEmail.set(email, new Map());
+        const emailGroups = groupsByEmail.get(email);
+        if (!emailGroups.has(dateKey)) {
+          emailGroups.set(dateKey, {
+            dutyStart: null, lunchStart: null, lunchDone: null, dutyOff: null,
+            tsMap: new Map(), rawRows: []
+          });
+        }
+        const group = emailGroups.get(dateKey);
+        const timeStr = ts.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+        if (status === 'Duty start') group.dutyStart = timeStr;
+        if (status === 'Lunch start') group.lunchStart = timeStr;
+        if (status === 'Lunch done') group.lunchDone = timeStr;
+        if (status === 'Duty off') group.dutyOff = timeStr;
+
+        group.tsMap.set(status, ts);
+        group.rawRows.push(row);
+      });
+
+      // Generate date list (latest first)
+      const dateList = [];
+      let current = new Date(endDate);
+      while (current >= startDate) {
+        dateList.push(current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        current.setDate(current.getDate() - 1);
+      }
+
+      // Build rows
+      const rows = [];
+      selectedEmails.forEach(email => {
+        dateList.forEach(dateKey => {
+          const emailGroups = groupsByEmail.get(email) || new Map();
+          const group = emailGroups.get(dateKey) || {
+            dutyStart: '--', lunchStart: '--', lunchDone: '--', dutyOff: '--',
+            tsMap: new Map(), rawRows: []
+          };
+          const attendance = computeAttendance(group);
+          if (includeAllAtt || selectedAttTypes.includes(attendance)) {
+// Extract bike readings
+let dutyStartReading = null;
+let dutyOffReading = null;
+
+group.rawRows.forEach(r => {
+  if (r[2] === "Duty start" && r[3] !== "N/A") dutyStartReading = parseInt(r[3]);
+  if (r[2] === "Duty off" && r[3] !== "N/A") dutyOffReading = parseInt(r[3]);
+});
+
+let bikeRunning = (dutyStartReading != null && dutyOffReading != null)
+  ? (dutyOffReading - dutyStartReading)
+  : "--";
+
+rows.push({
+  email, date: dateKey,
+  dutyStart: group.dutyStart || '--',
+  lunchStart: group.lunchStart || '--',
+  lunchDone: group.lunchDone || '--',
+  dutyOff: group.dutyOff || '--',
+  attendance,
+  bikeRunning,
+  rawRows: group.rawRows
+});
+          }
+        });
+      });
+
+      // Render
+      elements.tbody.innerHTML = '';
+      if (rows.length === 0) {
+        elements.tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#999;">No records found for selected filters.</td></tr>';
+      } else {
+        rows.forEach((row, idx) => {
+          let editBtn = '';
+          if (row.rawRows.length > 0) {
+            const rawRowsStr = JSON.stringify(row.rawRows).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            editBtn = `<button class="edit-btn" onclick="openEditModal('${row.email.replace(/'/g, "\\'")}', '${row.date.replace(/'/g, "\\'")}', '${rawRowsStr}')">✏️</button>`;
+          }
+          const tr = document.createElement('tr');
+tr.innerHTML = `
+  <td>${editBtn}</td>
+  <td>${idx + 1}</td>
+  <td>${row.date}</td>
+  <td>${row.email}</td>
+  <td>${row.dutyStart}</td>
+  <td>${row.lunchStart}</td>
+  <td>${row.lunchDone}</td>
+  <td>${row.dutyOff}</td>
+  <td>${row.attendance}</td>
+  <td>${row.bikeRunning}</td>
+`;
+
+          elements.tbody.appendChild(tr);
+        });
+      }
+      renderSummary(rows);
+      elements.attendanceTable.style.display = 'table';
+      elements.loadingMessage.style.display = 'none';
+    }
+
+    // Compute attendance status
+    function computeAttendance(group) {
+      const hasDutyStart = !!group.tsMap.get('Duty start');
+      const hasDutyOff = !!group.tsMap.get('Duty off');
+      const hasLunchStart = !!group.tsMap.get('Lunch start');
+      const hasLunchDone = !!group.tsMap.get('Lunch done');
+      if (!hasDutyStart && !hasDutyOff && !hasLunchStart && !hasLunchDone) {
+        return 'Off';
+      }
+      if ((hasDutyStart && !hasDutyOff) || (!hasDutyStart && hasDutyOff)) {
+        return 'Incomplete attendance';
+      }
+      if ((hasLunchStart && !hasLunchDone) || (!hasLunchStart && hasLunchDone)) {
+        return 'Incomplete attendance';
+      }
+      const dutyStartTs = group.tsMap.get('Duty start');
+      const dutyOffTs = group.tsMap.get('Duty off');
+      if (!dutyStartTs || !dutyOffTs) {
+        return 'Incomplete attendance';
+      }
+      let totalHours = (dutyOffTs - dutyStartTs) / 3600000;
+      if (hasLunchStart && hasLunchDone) {
+        const lunchStartTs = group.tsMap.get('Lunch start');
+        const lunchDoneTs = group.tsMap.get('Lunch done');
+        if (lunchStartTs && lunchDoneTs) {
+          const lunchHours = (lunchDoneTs - lunchStartTs) / 3600000;
+          totalHours = totalHours - lunchHours;
+        }
+      }
+      if (!(totalHours > 0)) {
+        return 'Off';
+      }
+      if (totalHours >= 8.5) return 'Full day';
+      if (totalHours >= 7.5 && totalHours < 8.5) return 'Late';
+      return 'Half day';
+    }
+ function renderSummary(rows) {
+  const summaryMap = new Map();
+
+  rows.forEach(row => {
+    if (!summaryMap.has(row.email)) {
+      summaryMap.set(row.email, {
+        full: 0,
+        half: 0,
+        late: 0,
+        incomplete: 0,
+        off: 0,
+        bike: 0
+      });
+    }
+
+    const emp = summaryMap.get(row.email);
+
+    if (row.attendance === "Full day") emp.full++;
+    if (row.attendance === "Half day") emp.half++;
+    if (row.attendance === "Late") emp.late++;
+    if (row.attendance === "Incomplete attendance") emp.incomplete++;
+    if (row.attendance === "Off") emp.off++;
+
+    if (row.bikeRunning !== "--" && !isNaN(row.bikeRunning)) {
+      emp.bike += row.bikeRunning;
+    }
+  });
+
+  const tbody = document.querySelector("#summaryTable tbody");
+  tbody.innerHTML = "";
+
+  summaryMap.forEach((val, email) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${email}</td>
+      <td>${val.full}</td>
+      <td>${val.half}</td>
+      <td>${val.late}</td>
+      <td>${val.incomplete}</td>
+      <td>${val.off}</td>
+      <td>${val.bike}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById("summaryTable").style.display = "table";
+}
+
+
+    // Open edit modal
+    function openEditModal(emailStr, dateStr, rawRowsStr) {
+      const email = emailStr;
+      const date = dateStr;
+      let rawRows;
+      try {
+        rawRows = JSON.parse(rawRowsStr.replace(/&quot;/g, '"'));
+      } catch (e) {
+        console.error('Parse error:', e);
+        return;
+      }
+
+      elements.editDate.textContent = date;
+      elements.editEmail.textContent = email;
+      elements.editTbody.innerHTML = '';
+
+      rawRows.forEach(([timestamp, name, status, remarks, selfieUrl, bikeUrl, location, verificationMessage, rowIndex]) => {
+        const formattedTs = formatTimestamp(timestamp);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${rowIndex}</td>
+          <td><input type="text" value="${formattedTs}" data-field="timestamp" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${name}" data-field="name" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${status}" data-field="status" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${remarks}" data-field="remarks" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${selfieUrl}" data-field="selfieUrl" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${bikeUrl}" data-field="bikeUrl" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${location}" data-field="location" data-row="${rowIndex}"></td>
+          <td><input type="text" value="${verificationMessage}" data-field="verificationMessage" data-row="${rowIndex}"></td>
+        `;
+        elements.editTbody.appendChild(tr);
+      });
+
+      // Add blur listeners
+      elements.editTbody.querySelectorAll('input').forEach(input => {
+        input.removeEventListener('blur', handleFieldUpdate);
+        input.addEventListener('blur', handleFieldUpdate);
+      });
+
+      elements.editModal.style.display = 'flex';
+    }
+
+    // Handle field update
+    async function handleFieldUpdate(e) {
+      const input = e.target;
+      const rowIndex = input.dataset.row;
+      const field = input.dataset.field;
+
+      const payload = {
+        action: 'updateRecord',
+        rowIndex: parseInt(rowIndex)
+      };
+
+      const rowInputs = elements.editTbody.querySelectorAll(`input[data-row="${rowIndex}"]`);
+      rowInputs.forEach(inp => {
+        let value = inp.value.trim();
+        payload[inp.dataset.field] = value;
+      });
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        showToast();
+        await fetchData();
+        renderTable();
+        // Re-open modal with fresh data
+        const freshRawRows = allData.filter(row => {
+          const rowDate = new Date(row[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          return row[1].trim() === elements.editEmail.textContent && rowDate === elements.editDate.textContent;
+        });
+        if (freshRawRows.length > 0) {
+          const freshStr = JSON.stringify(freshRawRows).replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          openEditModal(elements.editEmail.textContent, elements.editDate.textContent, freshStr);
+        } else {
+          elements.editModal.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Update failed:', err);
+        alert('Network error: ' + err.message);
+      }
+    }
+
+    // Initialize
+    window.onload = async () => {
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(today.getDate() - 1);
+
+      elements.endDate.value = today.toISOString().split('T')[0];
+      elements.startDate.value = yesterday.toISOString().split('T')[0];
+
+      elements.startDate.addEventListener('change', renderTable);
+      elements.endDate.addEventListener('change', renderTable);
+
+      await fetchData();
+    };
+  </script>
+</body>
+</html>
+
+
