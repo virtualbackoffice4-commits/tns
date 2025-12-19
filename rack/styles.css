@@ -405,3 +405,38 @@ h2 {
   }
 
 }
+#modalButtons {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 5;
+  padding: 10px;
+}
+/* ===== MOBILE: ONLY SCREENSHOT BUTTON, SMALL & TOP-LEFT ===== */
+@media (max-width: 768px) {
+
+  /* CSV button hide */
+  #modalButtons button:first-child {
+    display: none;
+  }
+
+  /* Buttons container top-left */
+  #modalButtons {
+    position: fixed;
+    top: 1px;
+    left: 20px;
+    justify-content: flex-start;
+    background: transparent;
+    padding: 0;
+    z-index: 9999;
+  }
+
+  /* Screenshot button small */
+  #modalButtons button:last-child {
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    width: auto;
+    min-width: unset;
+  }
+}
