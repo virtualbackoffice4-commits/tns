@@ -322,43 +322,53 @@ function downloadCSV() {
 }
 
 function shareShot() {
-  const original = document.getElementById('screenshotContent');
 
-  // 🔹 Clone content
-  const clone = original.cloneNode(true);
+  const modal = document.getElementById('userModalContent');
+  const table = document.querySelector('#userDetails table');
 
-  // 🔹 Wrapper (screen se bahar)
-  const wrapper = document.createElement('div');
-  wrapper.style.position = 'fixed';
-  wrapper.style.left = '-10000px';
-  wrapper.style.top = '0';
-  wrapper.style.background = '#fff';
-  wrapper.style.padding = '10px';
-  wrapper.style.overflow = 'visible';
+  if (!table) {
+    alert('Table not found');
+    return;
+  }
 
-  // 🔹 Important: force full width
-  wrapper.style.width = original.scrollWidth + 'px';
+  // save modal styles
+  const oldWidth = modal.style.width;
+  const oldMaxWidth = modal.style.maxWidth;
+  const oldOverflow = modal.style.overflowX;
 
-  clone.style.overflow = 'visible';
-  clone.style.width = '100%';
+  // save table styles
+  const oldTableLayout = table.style.tableLayout;
+  const oldTableWidth = table.style.width;
 
-  wrapper.appendChild(clone);
-  document.body.appendChild(wrapper);
+  // force full width
+  modal.style.width = 'auto';
+  modal.style.maxWidth = 'none';
+  modal.style.overflowX = 'visible';
 
-  html2canvas(wrapper, {
+  table.style.tableLayout = 'auto';
+  table.style.width = 'max-content';
+
+  html2canvas(table, {
     backgroundColor: '#ffffff',
-    scale: 2,              // 👈 HD image
-    useCORS: true,
+    scale: 2,
     scrollX: 0,
-    scrollY: 0
+    scrollY: 0,
+    useCORS: true
   }).then(canvas => {
+
+    // restore styles
+    modal.style.width = oldWidth;
+    modal.style.maxWidth = oldMaxWidth;
+    modal.style.overflowX = oldOverflow;
+
+    table.style.tableLayout = oldTableLayout;
+    table.style.width = oldTableWidth;
+
+    // download PNG (WhatsApp friendly)
     const a = document.createElement('a');
     a.href = canvas.toDataURL('image/png');
-    a.download = 'screenshot.png';
+    a.download = 'users-details.png';
     a.click();
-
-    // 🧹 cleanup
-    document.body.removeChild(wrapper);
   });
 }
 
