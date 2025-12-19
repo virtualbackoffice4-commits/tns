@@ -155,7 +155,7 @@ h2 {
   transform: scale(1.05);
 }
 #userDetails table {
-  width: 100%;
+  
   border-collapse: collapse;
   background: white;
   border-radius: 8px;
@@ -310,7 +310,60 @@ h2 {
 /* Only Address column should wrap */
 #userDetails th:nth-child(6),
 #userDetails td:nth-child(6) {
-  white-space: normal;        /* ✅ wrap allowed */
+  white-space: normal;        /* address next line me jayega */
+  word-break: break-word;     /* lamba text bhi break hoga */
+  width: 40%; 
+}
+
+#userDetails table {
+  width: 100%;
+  table-layout: fixed;
+}
+/* TABLE FIX INSIDE POPUP */
+#userDetails table {
+  width: 100%;
+  table-layout: fixed;   /* 👈 sabse important */
+}
+/* SN */
+#userDetails th:nth-child(1),
+#userDetails td:nth-child(1) {
+  width: 10px;
+  white-space: nowrap;
+}
+
+/* Name (WRAP allowed) */
+#userDetails th:nth-child(2),
+#userDetails td:nth-child(2) {
+  width: 50px;
+  white-space: normal;
   word-break: break-word;
-  max-width: 320px;
+}
+
+/* User ID */
+#userDetails th:nth-child(3),
+#userDetails td:nth-child(3) {
+  width: 60px;
+  white-space: nowrap;
+}
+
+/* Number */
+#userDetails th:nth-child(4),
+#userDetails td:nth-child(4) {
+  width: 60;
+  white-space: nowrap;
+}
+
+/* Power */
+#userDetails th:nth-child(5),
+#userDetails td:nth-child(5) {
+  width: 30px;
+  white-space: nowrap;
+}
+
+/* Address (WRAP allowed) */
+#userDetails th:nth-child(6),
+#userDetails td:nth-child(6) {
+  width: auto;              /* jo space bache */
+  white-space: normal;
+  word-break: break-word;
 }
