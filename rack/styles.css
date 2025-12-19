@@ -302,8 +302,8 @@ h2 {
 /* ===== POPUP TABLE FINAL & CLEAN FIX ===== */
 
 #userDetails table {
-  width: max-content;
-  table-layout: auto;
+  width: 100%;
+  table-layout: fixed;
 }
 
 /* Common cell style */
