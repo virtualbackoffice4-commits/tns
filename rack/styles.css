@@ -335,7 +335,7 @@ h2 {
 /* User ID (wrap) */
 #userDetails th:nth-child(3),
 #userDetails td:nth-child(3) {
-  width: 60px;
+  width: 35px;
   white-space: normal;
   word-break: break-word;
   font-size: 10px;
