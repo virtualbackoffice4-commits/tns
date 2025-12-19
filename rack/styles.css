@@ -299,71 +299,95 @@ h2 {
   }
 }
 
-/* Default: no wrapping for all columns */
-#userDetails th,
-#userDetails td {
-  height: auto;
-  line-height: 1.4;
-  white-space: nowrap;   /* 👈 yahi main fix hai */
-  vertical-align: top;
-}
-/* Only Address column should wrap */
-#userDetails th:nth-child(6),
-#userDetails td:nth-child(6) {
-  white-space: normal;        /* address next line me jayega */
-  word-break: break-word;     /* lamba text bhi break hoga */
-  width: 40%; 
-}
+/* ===== POPUP TABLE FINAL & CLEAN FIX ===== */
 
 #userDetails table {
   width: 100%;
   table-layout: fixed;
 }
-/* TABLE FIX INSIDE POPUP */
-#userDetails table {
-  width: 100%;
-  table-layout: fixed;   /* 👈 sabse important */
+
+/* Common cell style */
+#userDetails th,
+#userDetails td {
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  vertical-align: top;
 }
+
 /* SN */
 #userDetails th:nth-child(1),
 #userDetails td:nth-child(1) {
   width: 10px;
   white-space: nowrap;
+  font-size: 10px;
 }
 
-/* Name (WRAP allowed) */
+/* Name (wrap) */
 #userDetails th:nth-child(2),
 #userDetails td:nth-child(2) {
-  width: 50px;
+  width: 55px;
   white-space: normal;
   word-break: break-word;
+  font-size: 10px;
 }
 
-/* User ID */
+/* User ID (wrap) */
 #userDetails th:nth-child(3),
 #userDetails td:nth-child(3) {
   width: 60px;
-  white-space: nowrap;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 10px;
 }
 
-/* Number */
+/* Mobile Number (wrap) */
 #userDetails th:nth-child(4),
 #userDetails td:nth-child(4) {
-  width: 60;
-  white-space: nowrap;
+  width: 60px;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 10px;
 }
 
 /* Power */
 #userDetails th:nth-child(5),
 #userDetails td:nth-child(5) {
-  width: 30px;
+  width: 25px;
   white-space: nowrap;
+  font-size: 10px;
 }
 
-/* Address (WRAP allowed) */
+/* Address (wrap, biggest column) */
 #userDetails th:nth-child(6),
 #userDetails td:nth-child(6) {
-  width: auto;              /* jo space bache */
+  width: auto;
   white-space: normal;
   word-break: break-word;
+  font-size: 10px;
+}
+/* Popup horizontal safety */
+#userDetails {
+  overflow-x: auto;
+}
+
+/* ===== MAIN TABLE MOBILE SIZE REDUCTION ONLY ===== */
+@media (max-width: 768px) {
+
+  /* Main table text chhota */
+  #matrixTable th,
+  #matrixTable td {
+    font-size: 14px;      /* 👈 text chhota */
+    padding: 1.9px;         /* 👈 kam space */
+  }
+
+  /* OLT / Name text */
+  .olt-name {
+    font-size: 13px;
+  }
+
+  /* Buttons / clickable text */
+  .clickable {
+    font-size: 12px;
+  }
 }
