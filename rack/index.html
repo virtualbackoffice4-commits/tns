@@ -273,7 +273,7 @@ function renderUsers(users, sub) {
   '<th>User ID</th>' +
   '<th>Number</th>' +
   '<th>Power</th>' +
-  '<th>Address</th>' +
+  '<th>Location</th>' +
   '</tr>';
 
 
@@ -289,7 +289,7 @@ function renderUsers(users, sub) {
   <td>${u.Users || ''}</td>
   <td>${u.Number || ''}</td>
   <td>${u.Power !== null && u.Power !== '' ? Number(u.Power).toFixed(2) : ''}</td>
-  <td>${u.Address || ''}</td>
+  <td>${u.Location || ''}</td>
 `;
 
     table.appendChild(tr);
