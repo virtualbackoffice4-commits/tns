@@ -322,16 +322,33 @@ function downloadCSV() {
 }
 
 function shareShot() {
-  const target = document.getElementById('screenshotContent');
+  const original = document.getElementById('screenshotContent');
 
-  const fullWidth = target.scrollWidth;
-  const fullHeight = target.scrollHeight;
+  // 🔹 Clone content
+  const clone = original.cloneNode(true);
 
-  html2canvas(target, {
-    width: fullWidth,
-    height: fullHeight,
-    windowWidth: fullWidth,
-    windowHeight: fullHeight,
+  // 🔹 Wrapper (screen se bahar)
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'fixed';
+  wrapper.style.left = '-10000px';
+  wrapper.style.top = '0';
+  wrapper.style.background = '#fff';
+  wrapper.style.padding = '10px';
+  wrapper.style.overflow = 'visible';
+
+  // 🔹 Important: force full width
+  wrapper.style.width = original.scrollWidth + 'px';
+
+  clone.style.overflow = 'visible';
+  clone.style.width = '100%';
+
+  wrapper.appendChild(clone);
+  document.body.appendChild(wrapper);
+
+  html2canvas(wrapper, {
+    backgroundColor: '#ffffff',
+    scale: 2,              // 👈 HD image
+    useCORS: true,
     scrollX: 0,
     scrollY: 0
   }).then(canvas => {
@@ -339,8 +356,12 @@ function shareShot() {
     a.href = canvas.toDataURL('image/png');
     a.download = 'screenshot.png';
     a.click();
+
+    // 🧹 cleanup
+    document.body.removeChild(wrapper);
   });
 }
+
 
 window.onload = () => {
   loadData();
