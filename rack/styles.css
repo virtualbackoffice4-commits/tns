@@ -1,0 +1,316 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f4f6f8;
+  color: #333;
+}
+h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+#matrixHolder {
+  overflow-x: auto;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  border-radius: 10px;
+  background: linear-gradient(145deg, #ffffff, #f0f2f5);
+}
+#matrixTable {
+  border-collapse: collapse;
+  width: 100%;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#matrixTable th, #matrixTable td {
+  border: 1px solid #e0e4e8;
+  padding: 14px;
+  text-align: center;
+  font-size: 18px;
+  transition: background 0.2s;
+}
+#matrixTable th {
+  background-color: #3498db;
+  color: white;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+#matrixTable tr:hover td {
+  background: #f8fafc;
+}
+.olt-name {
+  font-weight: 700;
+  font-size: 18px;
+  color: #2c3e50;
+}
+.clickable {
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+}
+.clickable:hover {
+  color: #1a5276;
+  transform: scale(1.05);
+}
+.onStatus {
+  background-color: white;
+  color: #27ae60;
+  font-weight: bold;
+  border-radius: 50%;
+  animation: none;
+}
+.offStatus {
+  background-color: white;
+  color: #e74c3c;
+  font-weight: bold;
+  border-radius: 50%;
+  animation: blink 0.8s infinite;
+}
+.separator {
+  background: linear-gradient(90deg, #ecf0f1, #dfe4ea);
+  font-weight: bold;
+  color: #7f8c8d;
+}
+.separator th {
+  padding: 12px;
+}
+/* Modal styles */
+#userModal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  justify-content: center;
+  align-items: center;
+}
+#userModalContent {
+  background: linear-gradient(145deg, #ffffff, #f9fbfc);
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 80%;
+  overflow-y: auto;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#userModalContent h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  font-weight: 500;
+}
+#modalSubTitle {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin-bottom: 15px;
+}
+.closeBtn {
+  float: right;
+  cursor: pointer;
+  font-weight: bold;
+  color: #bdc3c7;
+  font-size: 24px;
+  transition: color 0.2s;
+}
+.closeBtn:hover { color: #e74c3c; }
+#modalButtons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+#modalButtons button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s, transform 0.2s;
+  margin: 0 8px;
+}
+#modalButtons button:first-child {
+  background: #3498db;
+  color: white;
+}
+#modalButtons button:first-child:hover {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+#modalButtons button:last-child {
+  background: #27ae60;
+  color: white;
+}
+#modalButtons button:last-child:hover {
+  background: #219a52;
+  transform: scale(1.05);
+}
+#userDetails table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+#userDetails th, #userDetails td {
+  border: 1px solid #e0e4e8;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+#userDetails th {
+  background: #f9f9f9;
+  font-weight: 500;
+}
+.pink { background-color: #ffebee; }
+.red { background-color: #ef5350; color: white; }
+.offStatus {
+  background-color: white;
+  color: #e74c3c;
+  font-weight: bold;
+  border-radius: 50%;
+  animation: blink 1s infinite;   /* ← Ye already hai, bas confirm kar lena */
+}
+
+.onStatus {
+  background-color: white;
+  color: #27ae60;
+  font-weight: bold;
+  border-radius: 50%;
+  animation: none;   /* Green ko blink nahi chahiye */
+}
+/* Loading Overlay */
+#loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.9);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+#loadingOverlay .spinner {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  animation: spin 0.3s linear infinite;
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.7), inset 0 0 10px rgba(52, 152, 219, 0.3);
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+#loadingOverlay p {
+  margin-top: 15px;
+  color: #7f8c8d;
+  font-size: 16px;
+  font-weight: 500;
+}
+/* Toast styles */
+#toast {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #e74c3c;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 8px;
+  z-index: 100;
+  font-size: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+#toast.show {
+  display: block;
+  animation: fadeOut 3s forwards;
+}
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* Responsive Design */
+@media (max-width: 768px) {
+  #matrixHolder {
+    overflow-x: auto;
+  }
+  #userModalContent {
+    width: 95%;
+    padding: 15px;
+    max-height: 85%;
+  }
+  #modalButtons {
+    flex-direction: column;
+    margin-bottom: 15px;
+    padding-right: 30px; /* Prevent overlap with close button */
+  }
+  #modalButtons button {
+    width: 100%;
+    margin: 5px 0;
+  }
+  #modalButtons button:last-child {
+    margin-bottom: 0;
+  }
+  #userDetails th, #userDetails td {
+    font-size: 12px;
+    padding: 10px;
+  }
+}
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  table {
+    margin-bottom: 20px; /* Extra space at bottom for mobile */
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+
+  #matrixHolder {
+    overflow-x: auto;
+  }
+
+  #userModalContent {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
+
+/* Default: no wrapping for all columns */
+#userDetails th,
+#userDetails td {
+  height: auto;
+  line-height: 1.4;
+  white-space: nowrap;   /* 👈 yahi main fix hai */
+  vertical-align: top;
+}
+/* Only Address column should wrap */
+#userDetails th:nth-child(6),
+#userDetails td:nth-child(6) {
+  white-space: normal;        /* ✅ wrap allowed */
+  word-break: break-word;
+  max-width: 320px;
+}
