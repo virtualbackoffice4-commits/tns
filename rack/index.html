@@ -322,9 +322,21 @@ function downloadCSV() {
 }
 
 function shareShot() {
-  html2canvas(document.getElementById('screenshotContent')).then(c=>{
+  const target = document.getElementById('screenshotContent');
+
+  const fullWidth = target.scrollWidth;
+  const fullHeight = target.scrollHeight;
+
+  html2canvas(target, {
+    width: fullWidth,
+    height: fullHeight,
+    windowWidth: fullWidth,
+    windowHeight: fullHeight,
+    scrollX: 0,
+    scrollY: 0
+  }).then(canvas => {
     const a = document.createElement('a');
-    a.href = c.toDataURL();
+    a.href = canvas.toDataURL('image/png');
     a.download = 'screenshot.png';
     a.click();
   });
