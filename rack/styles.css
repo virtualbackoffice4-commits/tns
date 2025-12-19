@@ -361,7 +361,7 @@ h2 {
 /* Address (wrap, biggest column) */
 #userDetails th:nth-child(6),
 #userDetails td:nth-child(6) {
-  width: auto;
+  width: 60px;
   white-space: normal;
   word-break: break-word;
   font-size: 10px;
@@ -390,4 +390,18 @@ h2 {
   .clickable {
     font-size: 12px;
   }
+}
+/* ===== MOBILE POPUP FIXED WIDTH + SCROLL ===== */
+@media (max-width: 768px) {
+
+  #userModalContent {
+    width: 1900px;        /* 👈 FIXED width (change if needed) */
+    max-width: none;     /* 👈 desktop limit remove */
+    padding: 10px;
+  }
+
+  #userModal {
+    overflow-x: auto;    /* 👈 left-right scroll enable */
+  }
+
 }
