@@ -361,7 +361,7 @@ h2 {
 /* Address (wrap, biggest column) */
 #userDetails th:nth-child(6),
 #userDetails td:nth-child(6) {
-  width: 60px;
+  width: 85px;
   white-space: normal;
   word-break: break-word;
   font-size: 10px;
