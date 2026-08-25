@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Repairs Tickets | Tachyon</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+:root{
+    --primary:#3b82f6;
+    --primary-dark:#2563eb;
+    --surface:#fff;
+    --surface-dark:#f1f5f9;
+    --border:#e2e8f0;
+    --text:#1e293b;
+    --text-secondary:#64748b;
+    --text-muted:#94a3b8;
+    --danger:#ef4444;
+    --warning:#f59e0b;
+    --success:#10b981;
+    --shadow-lg:0 10px 30px rgba(15,23,42,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    font-family:Inter,system-ui,sans-serif;
+    background:#f8fafc;
+    color:var(--text);
+    min-height:100vh;
+    font-size:14px;
+}
+.page{
+    width:100%;
+    min-height:100vh;
+    padding:18px;
+}
+.panel{
+    width:100%;
+    max-width:1500px;
+    margin:0 auto;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:var(--shadow-lg);
+}
+.header{
+    padding:9px 14px;
+    background:var(--surface-dark);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    flex-wrap:wrap;
+}
+.title-wrap h1{
+    font-size:15px;
+    font-weight:700;
+}
+.subtitle{
+    margin-top:4px;
+    color:var(--text-secondary);
+    font-size:12px;
+}
+.actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+button{
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    border-radius:8px;
+    padding:8px 12px;
+    font:600 12px Inter,sans-serif;
+    cursor:pointer;
+}
+button:hover{background:#eaf2ff;border-color:#93c5fd}
+#refreshBtn{
+    background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff;
+    border:none;
+}
+.sync-time{
+    color:var(--text-secondary);
+    font-size:9px;
+    font-weight:600;
+    white-space:nowrap;
+}
+.search-wrap{
+    position:relative;
+    min-width:260px;
+    flex:1;
+    max-width:420px;
+}
+.search-wrap i{
+    position:absolute;
+    left:11px;
+    top:50%;
+    transform:translateY(-50%);
+    color:var(--text-muted);
+    pointer-events:none;
+}
+#globalSearch{
+    width:100%;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    border-radius:7px;
+    padding:7px 9px 7px 29px;
+    font:500 11px Inter,sans-serif;
+    outline:none;
+}
+#globalSearch:focus{
+    border-color:#93c5fd;
+    box-shadow:0 0 0 2px rgba(59,130,246,.1);
+}
+
+.count{
+    padding:7px 11px;
+    border-radius:999px;
+    background:rgba(239,68,68,.1);
+    color:var(--danger);
+    border:1px solid rgba(239,68,68,.2);
+    font-weight:700;
+    font-size:12px;
+}
+.status{
+    padding:4px 14px;
+    background:#fff;
+    border-bottom:1px solid var(--border);
+    color:var(--text-secondary);
+    font-size:12px;
+}
+.table-wrap{
+    overflow:auto;
+    max-height:calc(100vh - 150px);
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+thead{
+    position:sticky;
+    top:0;
+    z-index:2;
+}
+th{
+    padding:10px 9px;
+    text-align:left;
+    background:var(--surface-dark);
+    color:var(--text-secondary);
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    border-bottom:2px solid var(--border);
+    white-space:nowrap;
+}
+td{
+    padding:9px 7px;
+    border-bottom:1px solid var(--border);
+    vertical-align:middle;
+    line-height:1.25;
+    white-space:nowrap;
+}
+tbody tr:hover{background:#f8fafc;transform:translateX(2px)}
+tbody tr{
+    transition:all 160ms ease;
+    border-left:3px solid var(--danger);
+}
+td.location{
+    max-width:230px;
+    white-space:normal;
+    word-break:break-word;
+}
+code{
+    font-family:"SF Mono",Consolas,monospace;
+    font-size:11px;
+}
+.badge{
+    display:inline-block;
+    position:relative;
+    padding:4px 8px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:700;
+    white-space:nowrap;
+}
+.badge-online{
+    background:rgba(16,185,129,.1);
+    color:var(--success);
+    border:1px solid rgba(16,185,129,.2);
+}
+.badge-offline{
+    background:rgba(245,158,11,.1);
+    color:var(--warning);
+    border:1px solid rgba(245,158,11,.2);
+}
+.badge-ticket{
+    animation:pulse 1.25s ease-in-out infinite;
+}
+.badge-type-fiber{
+    background:rgba(236,72,153,.15);
+    color:#f86363;
+    border:1px solid rgba(236,72,153,.3);
+}
+.badge-type-other{
+    background:rgba(59,130,246,.15);
+    color:#3b82f6;
+    border:1px solid rgba(59,130,246,.3);
+}
+.reopen-marker{
+    display:inline-grid;
+    place-items:center;
+    min-width:15px;
+    height:15px;
+    margin-left:4px;
+    border-radius:50%;
+    background:var(--danger);
+    color:#fff;
+    font-size:9px;
+    font-weight:800;
+}
+@keyframes pulse{
+    0%,100%{box-shadow:0 0 0 rgba(239,68,68,0)}
+    50%{box-shadow:0 0 12px rgba(239,68,68,.35)}
+}
+.empty{
+    padding:50px 20px;
+    text-align:center;
+    color:var(--text-muted);
+}
+.empty i{font-size:34px;margin-bottom:12px;opacity:.4}
+.empty h3{color:var(--text-secondary);margin-bottom:5px}
+.loading{
+    padding:45px 20px;
+    text-align:center;
+    color:var(--text-secondary);
+}
+.spinner{
+    width:30px;height:30px;
+    border:3px solid var(--border);
+    border-top-color:var(--primary);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:0 auto 12px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error{
+    padding:25px;
+    color:var(--danger);
+    background:rgba(239,68,68,.05);
+    text-align:center;
+}
+
+.ticket-modal{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:14px;
+    background:rgba(0,0,0,.7);
+    backdrop-filter:blur(6px);
+}
+.ticket-modal.show{display:flex}
+.ticket-panel{
+    width:100%;
+    max-width:850px;
+    max-height:90vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:0 20px 60px rgba(15,23,42,.25);
+}
+.ticket-panel.reopen{
+    animation:ticketGlow 1.8s ease-in-out infinite;
+}
+@keyframes ticketGlow{
+    0%,100%{box-shadow:0 20px 60px rgba(15,23,42,.18)}
+    50%{box-shadow:0 20px 70px rgba(239,68,68,.35)}
+}
+.ticket-header{
+    padding:14px 18px;
+    background:var(--surface-dark);
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+}
+.ticket-title{
+    font-size:16px;
+    font-weight:700;
+    line-height:1.35;
+}
+.ticket-created{
+    margin-top:5px;
+    color:var(--text-secondary);
+    font-size:11px;
+}
+.ticket-close{
+    width:32px;
+    height:32px;
+    padding:0;
+    flex:0 0 32px;
+    display:grid;
+    place-items:center;
+    font-size:15px;
+}
+.ticket-body{
+    overflow:auto;
+}
+.ticket-detail-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+.ticket-detail-table th,
+.ticket-detail-table td{
+    padding:9px 12px;
+    border-bottom:1px solid var(--border);
+    text-align:left;
+    vertical-align:top;
+}
+.ticket-detail-table th{
+    width:220px;
+    background:var(--surface-dark);
+    color:var(--text-secondary);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+}
+.ticket-detail-highlight th,
+.ticket-detail-highlight td{
+    background:rgba(59,130,246,.07);
+}
+.ticket-detail-highlight td{
+    font-weight:800;
+    color:var(--primary-dark);
+}
+.repeat-label{
+    display:inline-flex;
+    align-items:center;
+    margin-left:6px;
+    padding:3px 7px;
+    border-radius:999px;
+    background:rgba(239,68,68,.12);
+    color:var(--danger);
+    border:1px solid rgba(239,68,68,.35);
+    font-size:10px;
+    font-weight:800;
+    vertical-align:middle;
+}
+.ticket-cell{
+    cursor:pointer;
+}
+.ticket-cell:hover .badge{
+    transform:translateY(-1px);
+}
+.ticket-cell .badge{
+    transition:transform 160ms ease;
+}
+
+@media(max-width:768px){
+    .search-wrap{
+        min-width:0;
+        width:150px;
+        max-width:150px;
+        flex:0 0 150px;
+        order:0;
+    }
+    #globalSearch{
+        padding:7px 8px 7px 27px;
+        font-size:10px;
+    }
+    .search-wrap i{
+        left:9px;
+        font-size:11px;
+    }
+    .actions{
+        flex-wrap:nowrap;
+        gap:5px;
+    }
+    .sync-time{
+        font-size:8px;
+    }
+
+    .page{padding:6px}
+    .panel{border-radius:10px}
+    .header{padding:7px 9px;gap:6px}
+    .title-wrap h1{font-size:13px}
+    .subtitle{font-size:10px}
+    .status{padding:3px 9px;font-size:9px}
+    .table-wrap{max-height:calc(100vh - 125px)}
+    table{font-size:11px}
+    th{font-size:9px;padding:8px 6px}
+    td{font-size:11px;padding:7px 5px}
+    td.location{max-width:150px}
+    .actions{width:100%;justify-content:space-between}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+    <div class="panel">
+        <div class="header">
+            <div class="title-wrap">
+                <h1><i class="fas fa-ticket-alt"></i> All Open Repairs Tickets</h1>
+            </div>
+            <div class="actions">
+                <div class="sync-time" id="syncTime">--:--:--</div>
+                <div class="search-wrap">
+                    <i class="fas fa-search"></i>
+                    <input id="globalSearch" type="search"
+                           placeholder="Search users, phone, ID, address, PON..."
+                           autocomplete="off">
+                </div>
+                <span class="count" id="count">0 tickets</span>
+                <button id="refreshBtn"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+        </div>
+
+        <div class="status" id="status">Connecting to Tachyon data...</div>
+
+        <div class="table-wrap">
+            <div id="content">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading open complaints...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API_BASE_URL = 'https://app3.vbo.co.in';
+const WINDOW_NAME = 'BARABANKI';
+const API_URL = `${API_BASE_URL}/BARABANKI/info`;
+const STATUS_URL = `${API_BASE_URL}/BARABANKI/status`;
+
+const els = {
+    content: document.getElementById('content'),
+    count: document.getElementById('count'),
+    subtitle: document.getElementById('subtitle'),
+    status: document.getElementById('status'),
+    syncTime: document.getElementById('syncTime'),
+    refresh: document.getElementById('refreshBtn')
+};
+
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+}
+
+function formatPON(user) {
+    // Rack UI uses the API's already-formatted PON value.
+    // Example: "PALHARI OLT:124.5P8"
+    const raw = user?.raw || {};
+    return (
+        user?.pon ||
+        raw.PON ||
+        raw.pon ||
+        raw.Pon ||
+        raw.port_name ||
+        raw['PON Name'] ||
+        'N/A'
+    );
+}
+
+function formatLastSeen(value) {
+    if (!value) return 'N/A';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleString('en-IN', {
+        day:'2-digit',
+        month:'short',
+        hour:'numeric',
+        minute:'2-digit',
+        hour12:true
+    });
+}
+
+function normalizeUser(user) {
+    return {
+        id: user.Users || user.user_id || '',
+        name: user.Name || '',
+        phone: user['Last called no'] || user.Number || '',
+        power: user.Power !== undefined && user.Power !== '' ? Number(user.Power) : null,
+        location: user.Location || user.address || '',
+        status: String(user.PON || '').toUpperCase().startsWith('UNDEFINED-00.00')
+            ? (String(user.online).toLowerCase() === 'yes' ? 'UP' : 'DOWN')
+            : (user['User status'] || ''),
+        ticket: user.Ticket || '',
+        pon: user.PON || user.pon || user.Pon || user['PON Name'] || '',
+        type: user.Tickets_group_name || '',
+        event: user.down_event || '',
+        oltIp: user['OLT IP'] || user.oltIp || user.olt_ip || '',
+        raw: user
+    };
+}
+
+async function fetchJSON(url, timeout=15000) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(url, {
+            headers:{
+                'Accept':'application/json',
+                'Cache-Control':'no-cache',
+                'Pragma':'no-cache'
+            },
+            cache:'no-store',
+            signal:controller.signal
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json();
+    } finally {
+        clearTimeout(timer);
+    }
+}
+
+function ticketBadge(user) {
+    const isOffline = user.status === 'DOWN';
+    const isReopen = String(
+        user.raw?.ticket_nature || user.raw?.ticketNature || ''
+    ).toLowerCase() === 'reopen';
+
+    return `<span class="badge badge-ticket ${isOffline ? 'badge-offline' : 'badge-online'}">
+        ${isOffline ? 'Offline' : 'Online'}
+        ${isReopen ? '<span class="reopen-marker">R</span>' : ''}
+    </span>`;
+}
+
+function typeBadge(type) {
+    const value = String(type || '').trim();
+    if (!value) return '';
+    const fiber = /^(fiber|service|services)$/i.test(value);
+    return `<span class="badge ${fiber ? 'badge-type-fiber' : 'badge-type-other'}">${escapeHTML(value)}</span>`;
+}
+
+
+let allTicketUsers = [];
+
+function userSearchText(user) {
+    const raw = user.raw || {};
+    return [
+        user.id,
+        user.name,
+        user.phone,
+        user.location,
+        user.status,
+        user.type,
+        user.event,
+        user.pon,
+        user.oltIp,
+        user.ticket,
+        raw['Tickets_subject'],
+        raw['Tickets_group_name'],
+        raw['Contact_first_name'],
+        raw['Contact_last_name'],
+        raw['Contact_street_addres1'],
+        raw['Contact_street_addres2']
+    ].filter(v => v !== undefined && v !== null)
+     .join(' ')
+     .toLowerCase();
+}
+
+function applyGlobalSearch() {
+    const query = document.getElementById('globalSearch').value
+        .trim()
+        .toLowerCase();
+
+    if (!query) {
+        render(allTicketUsers);
+        return;
+    }
+
+    const terms = query.split(/\s+/).filter(Boolean);
+
+    const filtered = allTicketUsers.filter(user => {
+        const haystack = userSearchText(user);
+        return terms.every(term => haystack.includes(term));
+    });
+
+    render(filtered);
+}
+
+
+function parseTicketCreated(value) {
+    const text = String(value ?? '').trim();
+    if (!text) return Number.POSITIVE_INFINITY;
+
+    const normalized = text.replace('Z', '+00:00');
+    const time = Date.parse(normalized);
+
+    if (!Number.isNaN(time)) return time;
+
+    const fallback = Date.parse(text.replace(' ', 'T'));
+    return Number.isNaN(fallback) ? Number.POSITIVE_INFINITY : fallback;
+}
+
+// Keep UI ordering exactly aligned with bot.py:
+// 1) LOS(RED LIGHT)
+// 2) remaining FIBER
+// 3) everything else
+// Within each group: oldest Tickets_created first.
+function complaintSortGroup(user) {
+    const raw = user.raw || {};
+    const subject = String(
+        raw.Tickets_subject ?? user.subject ?? ''
+    ).trim().toUpperCase();
+
+    const ticketType = String(
+        raw.Tickets_type ?? user.ticketType ?? ''
+    ).trim().toUpperCase();
+
+    if (
+        subject.includes('LOS(RED LIGHT)') ||
+        (subject.includes('LOS') && subject.includes('RED LIGHT'))
+    ) {
+        return 0;
+    }
+
+    if (ticketType.includes('FIBER')) {
+        return 1;
+    }
+
+    return 2;
+}
+
+function sortComplaintUsers(users) {
+    return [...users].sort((a, b) => {
+        const groupDiff = complaintSortGroup(a) - complaintSortGroup(b);
+        if (groupDiff !== 0) return groupDiff;
+
+        return (
+            parseTicketCreated(a.raw?.Tickets_created) -
+            parseTicketCreated(b.raw?.Tickets_created)
+        );
+    });
+}
+
+function render(users) {
+    const totalCount = allTicketUsers.length;
+    const isFiltered = users.length !== totalCount;
+
+    els.count.textContent = isFiltered
+        ? `${users.length} / ${totalCount}`
+        : `${users.length} ticket${users.length !== 1 ? 's' : ''}`;
+
+    if (!users.length) {
+        els.content.innerHTML = `
+            <div class="empty">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>No Open Repairs Complaints</h3>
+                <p>No users with open Repairs tickets right now.</p>
+            </div>`;
+        return;
+    }
+
+    const showType = users.some(u => String(u.type || '').trim() !== '');
+    const showEvent = users.some(u => {
+        const offline = u.status === 'DOWN';
+        const hasTicket = !!u.ticket && String(u.ticket).trim() !== '';
+        return (offline || hasTicket) && String(u.event || '').trim() !== '';
+    });
+
+    let html = `<table>
+        <thead><tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>User ID</th>
+            <th>Phone</th>
+            <th>Power</th>
+            <th>Location</th>
+            <th>Status</th>
+            ${showType ? '<th>Type</th>' : ''}
+            ${showEvent ? '<th>Event</th>' : ''}
+            <th>PON</th>
+            <th>Last Seen</th>
+        </tr></thead><tbody>`;
+
+    users.forEach((u, i) => {
+        const location = u.location || 'N/A';
+        const truncated = location.length > 40
+            ? location.substring(0,37) + '...'
+            : location;
+
+        const eventValue =
+            (u.status === 'DOWN' || u.ticket) ? (u.event || '') : '';
+
+        html += `<tr>
+            <td><strong>${i + 1}</strong></td>
+            <td>${escapeHTML(u.name || 'N/A')}</td>
+            <td><code>${escapeHTML(u.id || 'N/A')}</code></td>
+            <td>${escapeHTML(u.phone || 'N/A')}</td>
+            <td>${u.power !== null && !Number.isNaN(u.power) ? u.power.toFixed(2) : 'N/A'}</td>
+            <td class="location" title="${escapeHTML(location)}">${escapeHTML(truncated)}</td>
+            <td class="ticket-cell" data-index="${i}" title="Show ticket details">${ticketBadge(u)}</td>
+            ${showType ? `<td>${typeBadge(u.type)}</td>` : ''}
+            ${showEvent ? `<td>${escapeHTML(eventValue)}</td>` : ''}
+            <td><code>${escapeHTML(formatPON(u))}</code></td>
+            <td>${escapeHTML(
+                u.raw?.status === 'DOWN'
+                    ? formatLastSeen(u.raw?.down_event_timestamp)
+                    : formatLastSeen(u.raw?.['Last Seen'])
+            )}</td>
+        </tr>`;
+    });
+
+    html += '</tbody></table>';
+    els.content.innerHTML = html;
+}
+
+
+function showTicketDetails(user) {
+    const raw = user.raw || {};
+    const isReopen =
+        String(raw.ticket_nature || raw.ticketNature || '').toLowerCase() === 'reopen';
+
+    const fieldOrder = [
+        'Tickets_group_name',
+        'Tickets_subject',
+        'Tickets_status',
+        'Tickets_created_by',
+        'Tickets_assigned_to',
+        'group',
+        'Contact_expiration_time',
+        'PON',
+        'port_status',
+        'OLT IP',
+        'down_event',
+        'Last Seen'
+    ];
+
+    const labelMap = {
+        Tickets_group_name:'Tickets group name',
+        Tickets_subject:'Tickets subject',
+        Tickets_status:'Tickets status',
+        Tickets_created_by:'Tickets created by',
+        Tickets_assigned_to:'Tickets assigned to',
+        group:'Plan',
+        Contact_expiration_time:'Contact expiration time',
+        PON:'PON',
+        port_status:'port status',
+        'OLT IP':'OLT IP',
+        down_event:'down event',
+        'Last Seen':'Last Seen'
+    };
+
+    function valueFor(key) {
+        if (key === 'PON') return formatPON(user);
+        if (key === 'Last Seen') {
+            return raw[key] ? formatLastSeen(raw[key]) : '';
+        }
+        if (key === 'group') {
+            return raw[key] ? `Plan - ${raw[key]}` : '';
+        }
+        return raw[key];
+    }
+
+    const rows = fieldOrder
+        .map(key => ({key, value:valueFor(key)}))
+        .filter(x => x.value !== undefined &&
+                     x.value !== null &&
+                     String(x.value).trim() !== '')
+        .map(x => `
+            <tr class="${x.key === 'Tickets_group_name' || x.key === 'Tickets_status'
+                ? 'ticket-detail-highlight' : ''}">
+                <th>${escapeHTML(labelMap[x.key] || x.key.replace(/_/g,' '))}</th>
+                <td>${escapeHTML(x.value)}</td>
+            </tr>
+        `).join('');
+
+    document.getElementById('ticketTitle').innerHTML = `
+        ${escapeHTML(user.name || 'N/A')}
+        (${escapeHTML(user.id || 'N/A')})
+        - ${escapeHTML(user.phone || 'N/A')}
+        ${isReopen ? '<span class="repeat-label">Repeat complaint in 24hrs</span>' : ''}
+    `;
+
+    document.getElementById('ticketCreated').innerHTML =
+        `Ticket ${escapeHTML(user.ticket || 'N/A')}` +
+        (raw.Tickets_created
+            ? ` • Created: ${escapeHTML(raw.Tickets_created)}`
+            : '');
+
+    document.getElementById('ticketBody').innerHTML = `
+        <table class="ticket-detail-table">
+            <tbody>
+                ${rows || '<tr><td>No ticket details available.</td></tr>'}
+            </tbody>
+        </table>
+    `;
+
+    const panel = document.getElementById('ticketPanel');
+    panel.classList.toggle('reopen', isReopen);
+
+    const modal = document.getElementById('ticketModal');
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+}
+
+function closeTicketDetails() {
+    const modal = document.getElementById('ticketModal');
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.getElementById('ticketPanel').classList.remove('reopen');
+}
+
+async function loadTickets() {
+    els.refresh.disabled = true;
+    els.refresh.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> Loading';
+    els.status.textContent = 'Fetching latest BARABANKI data...';
+
+    try {
+        const [data, statusData] = await Promise.all([
+            fetchJSON(API_URL),
+            fetchJSON(STATUS_URL, 8000).catch(() => ({}))
+        ]);
+
+        const rows = Array.isArray(data.rows) ? data.rows : [];
+        const users = rows.map(row => normalizeUser(row));
+
+        // Exactly the same basic ticket condition used by the dashboard popup:
+        // ticket must be non-empty.
+        const tickets = users.filter(user =>
+            user.ticket && String(user.ticket).trim() !== ''
+        );
+
+        // Apply the exact same complaint priority used by bot.py.
+        const sortedTickets = sortComplaintUsers(tickets);
+
+        window.__ticketUsers = sortedTickets;
+        allTicketUsers = sortedTickets;
+        applyGlobalSearch();
+
+        const timestamp =
+            statusData.runtime_timestamp ||
+            data.runtime_timestamp ||
+            new Date().toISOString();
+
+        const d = new Date(timestamp);
+        const syncText = d.toLocaleString('en-IN', {
+            day:'2-digit',
+            month:'short',
+            hour:'2-digit',
+            minute:'2-digit',
+            second:'2-digit',
+            hour12:false
+        });
+
+        if (els.syncTime) els.syncTime.textContent = `Last sync: ${syncText}`;
+        els.status.textContent = '';
+
+    } catch (error) {
+        console.error(error);
+        els.content.innerHTML = `
+            <div class="error">
+                <i class="fas fa-triangle-exclamation"></i>
+                <h3>Unable to load complaints</h3>
+                <p>${escapeHTML(error.message || 'API connection failed')}</p>
+                <p style="margin-top:8px;font-size:11px;color:#64748b">
+                    Check API/CORS availability and try Refresh.
+                </p>
+            </div>`;
+        els.count.textContent = 'Error';
+        els.status.textContent = 'Failed to fetch latest data.';
+    } finally {
+        els.refresh.disabled = false;
+        els.refresh.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+    }
+}
+
+els.refresh.addEventListener('click', loadTickets);
+
+
+function initTicketModalEvents() {
+    const content = document.getElementById('content');
+    const modal = document.getElementById('ticketModal');
+    const close = document.getElementById('ticketClose');
+
+    if (!content || !modal || !close) {
+        console.error('Ticket modal elements are missing.');
+        return;
+    }
+
+    content.addEventListener('click', event => {
+        const cell = event.target.closest('.ticket-cell');
+        if (!cell) return;
+
+        const index = Number(cell.dataset.index);
+        if (!Number.isInteger(index)) return;
+
+        const user = window.__ticketUsers?.[index];
+        if (user) showTicketDetails(user);
+    });
+
+    close.addEventListener('click', closeTicketDetails);
+
+    modal.addEventListener('click', event => {
+        if (event.target === modal) closeTicketDetails();
+    });
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeTicketDetails();
+    });
+}
+
+document.getElementById('globalSearch')?.addEventListener('input', applyGlobalSearch);
+
+document.addEventListener('DOMContentLoaded', () => {
+    initTicketModalEvents();
+    loadTickets();
+    setInterval(loadTickets, 90000);
+});
+
+</script>
+
+<div id="ticketModal" class="ticket-modal" aria-hidden="true">
+    <div id="ticketPanel" class="ticket-panel">
+        <div class="ticket-header">
+            <div>
+                <div id="ticketTitle" class="ticket-title"></div>
+                <div id="ticketCreated" class="ticket-created"></div>
+            </div>
+            <button id="ticketClose" class="ticket-close" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="ticketBody" class="ticket-body"></div>
+    </div>
+</div>
+
+</body>
+</html>
