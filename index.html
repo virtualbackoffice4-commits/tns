@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rack Dashboard | Network Monitoring</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <p>Initializing Rack ...</p>
+            <div class="loading-details" id="loadingDetails">Connecting ...</div>
+        </div>
+    </div>
+    <div id="dataLoading" class="data-loading"></div>
+    <button id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Open menu">
+        <i class="fas fa-bars"></i>
+    </button>
+    <header class="dashboard-header">
+        <div class="header-left">
+            <div class="logo">
+                <i class="fas fa-satellite-dish"></i>
+                <div>
+                    <h1>Tachyon</h1>
+                    <div class="subtitle">Broadband</div>
+                </div>
+            </div>
+            <div class="sync-info">
+                <div class="last-sync">
+                    <i class="fas fa-clock"></i>
+                    <span>Last Sync:</span>
+                    <span id="lastSyncTime" class="sync-time">--:--</span>
+                </div>
+                <div class="window-selector-container">
+                    <div class="window-selector">
+                        <i class="fas fa-window-maximize"></i>
+                        <select id="windowSelector" class="window-dropdown"></select>
+                    </div>
+                    <button id="btnRefresh" class="btn-refresh" title="Refresh Data">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <div class="global-search">
+                        <i class="fas fa-search"></i>
+                        <input id="globalSearchInput" type="search" placeholder="Search user..." autocomplete="off">
+                        <button id="btnGlobalSearch" title="Search users">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="total-stats">
+                <div class="stat-box clickable-stat" id="activeUsersStatBox" role="button" tabindex="0" title="Show active users">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">Active Users</span>
+                        <span class="stat-value" id="totalUsers">0</span>
+                    </div>
+                </div>
+                <div class="stat-box offline clickable-stat" id="offlineStatBox" role="button" tabindex="0" title="Show offline users">
+                    <div class="stat-icon"><i class="fas fa-wifi-slash"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">Offline</span>
+                        <span class="stat-value" id="totalOffline">0</span>
+                    </div>
+                </div>
+                <div class="stat-box ticket clickable-stat" id="ticketStatBox" role="button" tabindex="0" title="Show all complaints">
+                    <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">Tickets</span>
+                        <span class="stat-value" id="totalTickets">0</span>
+                    </div>
+                </div>
+                <div class="stat-box olt">
+                    <div class="stat-icon"><i class="fas fa-server"></i></div>
+                    <div class="stat-content">
+                        <span class="stat-label">OLTs</span>
+                        <span class="stat-value" id="oltCount">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div id="mobileSidebar" class="mobile-sidebar">
+        <div class="mobile-sidebar-header">
+            <div class="mobile-logo">
+                <i class="fas fa-satellite-dish"></i>
+                <div>
+                    <h2>Rack</h2>
+                    <div class="subtitle">Network Monitoring</div>
+                </div>
+            </div>
+            <button id="mobileSidebarClose" class="mobile-sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-sidebar-content">
+            <div class="mobile-menu-section">
+                <h3><i class="fas fa-window-maximize"></i> Select Window</h3>
+                <select id="mobileWindowSelector" class="mobile-window-dropdown"></select>
+            </div>
+            <div class="mobile-menu-section">
+                <h3><i class="fas fa-chart-bar"></i> Dashboard Stats</h3>
+                <div class="mobile-stats">
+                    <div class="mobile-stat-item mobile-clickable-stat" id="mobileActiveUsersStatBox" role="button" tabindex="0">
+                        <i class="fas fa-users"></i>
+                        <div>
+                            <span class="mobile-stat-label">Active Users</span>
+                            <span class="mobile-stat-value" id="mobileTotalUsers">0</span>
+                        </div>
+                    </div>
+                    <div class="mobile-stat-item offline mobile-clickable-stat" id="mobileOfflineStatBox" role="button" tabindex="0">
+                        <i class="fas fa-wifi-slash"></i>
+                        <div>
+                            <span class="mobile-stat-label">Offline</span>
+                            <span class="mobile-stat-value" id="mobileTotalOffline">0</span>
+                        </div>
+                    </div>
+                    <div class="mobile-stat-item ticket mobile-clickable-stat" id="mobileTicketStatBox" role="button" tabindex="0">
+                        <i class="fas fa-ticket-alt"></i>
+                        <div>
+                            <span class="mobile-stat-label">Tickets</span>
+                            <span class="mobile-stat-value" id="mobileTotalTickets">0</span>
+                        </div>
+                    </div>
+                    <div class="mobile-stat-item olt mobile-clickable-stat" id="mobileOltStatBox" role="button" tabindex="0">
+                        <i class="fas fa-server"></i>
+                        <div>
+                            <span class="mobile-stat-label">OLTs</span>
+                            <span class="mobile-stat-value" id="mobileOltCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mobile-menu-section">
+                <h3><i class="fas fa-search"></i> Search Users</h3>
+                <div class="mobile-search">
+                    <input id="mobileGlobalSearchInput" type="search" placeholder="Search any value..." autocomplete="off">
+                    <button id="mobileBtnGlobalSearch" class="mobile-action-btn">
+                        <i class="fas fa-search"></i>
+                        <span>Search</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mobile-menu-section">
+                <h3><i class="fas fa-cogs"></i> Actions</h3>
+                <div class="mobile-actions-list">
+                    <button id="mobileBtnRefresh" class="mobile-action-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh Data</span>
+                    </button>
+                    <button id="mobileBtnScreenshot" class="mobile-action-btn">
+                        <i class="fas fa-camera"></i>
+                        <span>Take Screenshot</span>
+                    </button>
+                    <button id="mobileBtnFullscreen" class="mobile-action-btn">
+                        <i class="fas fa-expand"></i>
+                        <span>Fullscreen</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mobile-menu-section">
+                <h3><i class="fas fa-clock"></i> Last Sync</h3>
+                <div class="mobile-sync-info">
+                    <div id="mobileLastSyncTime">--:--</div>
+                    <div class="mobile-sync-status"></div>
+                </div>
+            </div>
+
+            </div>
+        </div>
+
+    </div>
+    <main class="dashboard-container">
+        <div id="oltContainer" class="olt-container"></div>
+        <div class="mobile-actions">
+            <button id="btnQuickRefresh" class="fab" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+            <button id="btnScreenshot" class="fab screenshot" title="Screenshot">
+                <i class="fas fa-camera"></i>
+            </button>
+        </div>
+    </main>
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">User Details</h2>
+                <div class="modal-actions">
+                    <button id="btnDownloadCSV" class="btn-small">
+                        <i class="fas fa-download"></i> CSV
+                    </button>
+                    <button id="btnModalScreenshot" class="btn-small btn-primary">
+                        <i class="fas fa-camera"></i> Screenshot
+                    </button>
+                    <button id="btnCloseModal" class="btn-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-subtitle" id="modalSubtitle"></div>
+            <div class="modal-body" id="modalBody"></div>
+            <div class="modal-footer">
+                <div class="pagination-info">
+                    <i class="fas fa-users"></i>
+                    <span id="currentUsersCount">0</span> users shown
+                </div>
+                <div class="modal-timestamp">
+                    <i class="fas fa-clock"></i>
+                    <span id="modalTimestamp">--:--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast" class="toast"></div>
+    <script src="script.js" defer></script>
+</body>
+</html>
