@@ -2183,14 +2183,23 @@ body {
         height: 38px !important;
         font-size: 1rem !important;
         border-radius: 8px !important;
+        z-index: 2000 !important;
     }
 
     .mobile-search-float {
         top: 0.45rem !important;
         right: 0.45rem !important;
         height: 38px !important;
-        width: 40px !important;
+        width: 38px !important;
         border-radius: 8px !important;
+        z-index: 1999 !important;
+    }
+
+    body.rack-modal-open .mobile-menu-toggle,
+    body.rack-modal-open .mobile-search-float {
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
     }
 
     .mobile-search-float.expanded,
@@ -2260,6 +2269,7 @@ body {
     .modal {
         padding: 0.25rem !important;
         align-items: stretch !important;
+        z-index: 2600 !important;
     }
 
     .modal-content {
@@ -2389,6 +2399,10 @@ body {
 
     .ticket-created-line {
         font-size: 0.65rem !important;
+    }
+
+    .choice-modal {
+        z-index: 2700 !important;
     }
 }
 

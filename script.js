@@ -647,6 +647,7 @@ const uiRenderer = {
                 <p>No users with open Repairs tickets in this selection.</p>
             </div>`;
             elements.userModal.style.display = 'flex';
+            document.body.classList.add('rack-modal-open');
             return;
         }
 
@@ -718,6 +719,7 @@ ${showCreateComplaintColumn ? '<td class="mark-complaint-cell"></td>' : ''}
             });
         }
         elements.userModal.style.display = 'flex';
+        document.body.classList.add('rack-modal-open');
     },
     renderTicketDetailsModal(user) {
         const raw = user.raw || {};
@@ -774,6 +776,7 @@ ${showCreateComplaintColumn ? '<td class="mark-complaint-cell"></td>' : ''}
             </table>
         `;
         elements.userModal.style.display = 'flex';
+        document.body.classList.add('rack-modal-open');
     }
 };
 
@@ -1122,6 +1125,7 @@ u.pon || '',
     },
     handleCloseModal() {
         elements.userModal.style.display = 'none';
+        document.body.classList.remove('rack-modal-open');
         elements.userModal?.querySelector('.modal-content')?.classList.remove('ticket-reopen-modal');
         state.selectedUsers = [];
         state.currentOltName = '';
