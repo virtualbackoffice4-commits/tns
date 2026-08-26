@@ -62,6 +62,7 @@ const elements = {
     btnScreenshot: document.getElementById('btnScreenshot'),
     toast: document.getElementById('toast'),
     windowSelector: document.getElementById('windowSelector'),
+    mobileSearchFloat: document.getElementById('mobileSearchFloat'),
     mobileTotalUsers: document.getElementById('mobileTotalUsers'),
     mobileTotalOffline: document.getElementById('mobileTotalOffline'),
     mobileTotalTickets: document.getElementById('mobileTotalTickets'),
@@ -658,7 +659,8 @@ const showEventColumn = users.some(user => {
     const hasTicket = !!user.ticket && user.ticket.trim() !== '';
     return (isOffline || hasTicket) && String(user.event || '').trim() !== '';
 });        
-const showCreateComplaintColumn = state.modalType === 'search';
+const complaintOnlyModalTypes = new Set(['ticket', 'tickets', 'ticket-details']);
+const showCreateComplaintColumn = !complaintOnlyModalTypes.has(state.modalType);
 
         let tableHTML = `<table class="user-table"><thead><tr>
             <th>#</th><th>Name</th><th>User ID</th><th>Phone</th><th>Power</th><th>Location</th><th>Status</th>${showTypeColumn ? '<th>Type</th>' : ''}${showEventColumn ? '<th>Event</th>' : ''}<th>PON</th><th>Last Seen</th>${showCreateComplaintColumn ? '<th>MarkComp</th>' : ''}
@@ -699,12 +701,22 @@ ${showTypeColumn ? `<td>${typeBadge}</td>` : ''}
 ${showEventColumn ? `<td>${eventValue}</td>` : ''}
 <td><code>${ponDisplay}</code></td>
 <td>${user.lastSeen ? utils.formatLastSeen(user.lastSeen) : 'N/A'}</td>
-${showCreateComplaintColumn ? '<td><a class="new-complaint-link" href="https://admin.mytachyon.in/" target="_blank" rel="noopener noreferrer" title="Create complaint">🚩</a></td>' : ''}                
+${showCreateComplaintColumn ? '<td class="mark-complaint-cell"></td>' : ''}                
 
             </tr>`;
         });
         tableHTML += `</tbody></table>`;
         elements.modalBody.innerHTML = tableHTML;
+        if (showCreateComplaintColumn) {
+            elements.modalBody.querySelectorAll('.user-table tbody tr').forEach((row, index) => {
+                const actionCell = row.lastElementChild;
+                if (!actionCell) return;
+                const hasComplaint = !!users[index]?.ticket && users[index].ticket.trim() !== '';
+                actionCell.innerHTML = hasComplaint
+                    ? '<span class="new-complaint-link inactive" aria-disabled="true" title="Complaint already exists"><i class="fas fa-flag"></i></span>'
+                    : '<button type="button" class="new-complaint-link" title="Mark complaint"><i class="fas fa-flag"></i></button>';
+            });
+        }
         elements.userModal.style.display = 'flex';
     },
     renderTicketDetailsModal(user) {
@@ -974,6 +986,7 @@ const eventHandlers = {
         if (!trigger) return;
         event.preventDefault();
         event.stopPropagation();
+        if (trigger.classList.contains('inactive')) return;
 
         let choiceModal = document.getElementById('markComplaintChoice');
         if (!choiceModal) {
@@ -1203,7 +1216,25 @@ const app = {
             document.getElementById('mobileSidebar').classList.remove('open');
             document.getElementById('mobileMenuToggle').style.opacity = '1';
         });
-        elements.mobileBtnGlobalSearch?.addEventListener('click', () => eventHandlers.handleGlobalSearch('mobile'));
+        const syncMobileSearchFloat = () => {
+            const hasValue = (elements.mobileGlobalSearchInput?.value || '').trim().length > 0;
+            const hasFocus = document.activeElement === elements.mobileGlobalSearchInput;
+            elements.mobileSearchFloat?.classList.toggle('expanded', hasValue || hasFocus);
+        };
+        elements.mobileBtnGlobalSearch?.addEventListener('click', () => {
+            const query = (elements.mobileGlobalSearchInput?.value || '').trim();
+            if (query.length < 2 && document.activeElement !== elements.mobileGlobalSearchInput) {
+                elements.mobileSearchFloat?.classList.add('expanded');
+                elements.mobileGlobalSearchInput?.focus();
+                return;
+            }
+            eventHandlers.handleGlobalSearch('mobile');
+        });
+        elements.mobileGlobalSearchInput?.addEventListener('focus', syncMobileSearchFloat);
+        elements.mobileGlobalSearchInput?.addEventListener('input', syncMobileSearchFloat);
+        elements.mobileGlobalSearchInput?.addEventListener('blur', () => {
+            window.setTimeout(syncMobileSearchFloat, 120);
+        });
         elements.mobileGlobalSearchInput?.addEventListener('keydown', e => {
             if (e.key === 'Enter') eventHandlers.handleGlobalSearch('mobile');
         });

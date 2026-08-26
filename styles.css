@@ -827,6 +827,11 @@ body {
     border-left: 3px solid var(--danger);
 }
 
+.mark-complaint-cell {
+    text-align: center;
+    white-space: nowrap;
+}
+
 .new-complaint-link {
     width: 30px;
     height: 30px;
@@ -837,13 +842,35 @@ body {
     border: 1px solid rgba(239, 68, 68, 0.18);
     text-decoration: none;
     font-size: 1rem;
+    line-height: 1;
+    font-family: inherit;
+    color: var(--danger);
     cursor: pointer;
+    appearance: none;
     transition: all var(--transition);
+}
+
+.new-complaint-link i {
+    pointer-events: none;
 }
 
 .new-complaint-link:hover {
     background: rgba(239, 68, 68, 0.16);
     transform: translateY(-1px);
+}
+
+.new-complaint-link.inactive {
+    color: var(--text-muted);
+    background: var(--surface-dark);
+    border-color: var(--border);
+    cursor: not-allowed;
+    opacity: 0.48;
+    filter: grayscale(1);
+}
+
+.new-complaint-link.inactive:hover {
+    transform: none;
+    background: var(--surface-dark);
 }
 
 .choice-modal {
@@ -1136,6 +1163,10 @@ body {
 .mobile-menu-toggle:hover {
     transform: scale(1.05);
     box-shadow: var(--shadow-lg);
+}
+
+.mobile-search-float {
+    display: none;
 }
 
 .mobile-sidebar {
@@ -1600,6 +1631,93 @@ body {
 @media (max-width: 768px) {
     .mobile-menu-toggle { display: flex !important; }
 
+    .mobile-search-float {
+        position: fixed;
+        top: 1rem;
+        right: 0.75rem;
+        z-index: 1999;
+        width: 46px;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.35rem;
+        padding: 0.3rem;
+        overflow: hidden;
+        color: var(--text-secondary);
+        background: rgba(255, 255, 255, 0.46);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        border-radius: var(--radius-md);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(10px);
+        transition: width var(--transition), background var(--transition), box-shadow var(--transition);
+    }
+
+    .mobile-search-float::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 14px;
+        height: 14px;
+        background: linear-gradient(135deg, rgba(226, 232, 240, 0.95) 50%, rgba(255, 255, 255, 0.2) 50%);
+        border-bottom-left-radius: 4px;
+        pointer-events: none;
+    }
+
+    .mobile-search-float.expanded,
+    .mobile-search-float:focus-within {
+        width: min(58vw, 220px);
+        background: rgba(255, 255, 255, 0.72);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+    }
+
+    .mobile-search-float > i {
+        width: 0;
+        opacity: 0;
+        color: var(--primary);
+        transition: opacity var(--transition), width var(--transition);
+    }
+
+    .mobile-search-float.expanded > i,
+    .mobile-search-float:focus-within > i {
+        width: 16px;
+        opacity: 1;
+    }
+
+    .mobile-search-float input {
+        min-width: 0;
+        width: 0;
+        flex: 1 1 auto;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.78rem;
+        opacity: 0;
+        transition: opacity var(--transition);
+    }
+
+    .mobile-search-float.expanded input,
+    .mobile-search-float:focus-within input {
+        width: auto;
+        opacity: 1;
+    }
+
+    .mobile-search-float button {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: grid;
+        place-items: center;
+        border: none;
+        border-radius: var(--radius-sm);
+        color: white;
+        background: rgba(59, 130, 246, 0.92);
+        cursor: pointer;
+    }
+
     .dashboard-header {
         display: none !important;
         visibility: hidden !important;
@@ -1730,6 +1848,22 @@ body {
 /* Very small mobile < 480px */
 @media (max-width: 480px) {
     .dashboard-container { padding: 4.5rem 0.75rem 0.75rem !important; }
+
+    .mobile-search-float {
+        right: 0.6rem;
+        height: 40px;
+    }
+
+    .mobile-search-float.expanded,
+    .mobile-search-float:focus-within {
+        width: min(62vw, 190px);
+    }
+
+    .mobile-search-float button {
+        width: 30px;
+        height: 30px;
+        flex-basis: 30px;
+    }
 
     .olt-card-header { padding: 0.65rem; }
 
