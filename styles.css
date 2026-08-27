@@ -2426,3 +2426,7 @@ body {
         height: 28px !important;
     }
 }
+
+.last-seen-column {
+    display: none !important;
+}

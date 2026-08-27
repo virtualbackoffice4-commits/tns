@@ -664,7 +664,7 @@ const complaintOnlyModalTypes = new Set(['ticket', 'tickets', 'ticket-details'])
 const showCreateComplaintColumn = !complaintOnlyModalTypes.has(state.modalType);
 
         let tableHTML = `<table class="user-table"><thead><tr>
-            <th>#</th><th>Name</th><th>User ID</th><th>Phone</th><th>Power</th><th>Location</th><th>Status</th>${showTypeColumn ? '<th>Type</th>' : ''}${showEventColumn ? '<th>Event</th>' : ''}<th>PON</th><th>Last Seen</th>${showCreateComplaintColumn ? '<th>MarkComp</th>' : ''}
+            <th>#</th><th>Name</th><th>User ID</th><th>Phone</th><th>Power</th><th>Location</th><th>Status</th>${showTypeColumn ? '<th>Type</th>' : ''}${showEventColumn ? '<th>Event</th>' : ''}<th>PON</th><th class="last-seen-column">Last Seen</th>${showCreateComplaintColumn ? '<th>MarkComp</th>' : ''}
         </tr></thead><tbody>`;
         users.forEach((user, index) => {
             const isOffline = user.status === 'DOWN';
@@ -701,7 +701,7 @@ const eventValue = (isOffline || hasTicket) ? (user.event || '') : '';
 ${showTypeColumn ? `<td>${typeBadge}</td>` : ''}
 ${showEventColumn ? `<td>${eventValue}</td>` : ''}
 <td><code>${ponDisplay}</code></td>
-<td>${user.lastSeen ? utils.formatLastSeen(user.lastSeen) : 'N/A'}</td>
+<td class="last-seen-column">${user.lastSeen ? utils.formatLastSeen(user.lastSeen) : 'N/A'}</td>
 ${showCreateComplaintColumn ? '<td class="mark-complaint-cell"></td>' : ''}                
 
             </tr>`;
